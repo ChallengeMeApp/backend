@@ -37,20 +37,22 @@ public class BackendApplication {
 
 	@PostConstruct
 	public void initializeDatabase() {
-		logger.info("Started with arguments: " + Joiner.on(',').join(arguments));
+		if (arguments != null) { // is null when tests are run
+			logger.info("Started with arguments: " + Joiner.on(',').join(arguments));
 
-		if (userService.getCountOfAdminUsers() == 0) {
-			User user = userService.createUser();
-			user.setAdmin(true);
-			user.setFirstName("root");
-			user.setLastName("root");
-			userService.save(user);
-			logger.info("Created root user: " + user.getUserId());
-		}
+			if (userService.getCountOfAdminUsers() == 0) {
+				User user = userService.createUser();
+				user.setAdmin(true);
+				user.setFirstName("root");
+				user.setLastName("root");
+				userService.save(user);
+				logger.info("Created root user: " + user.getUserId());
+			}
 
-		for (String argument : arguments) {
-			if (argument.startsWith("import=")) {
-				googleDocImporter.importChallenges(argument.substring(7));
+			for (String argument : arguments) {
+				if (argument.startsWith("import=")) {
+					googleDocImporter.importChallenges(argument.substring(7));
+				}
 			}
 		}
 	}
