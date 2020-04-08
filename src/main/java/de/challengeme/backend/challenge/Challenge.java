@@ -2,17 +2,19 @@ package de.challengeme.backend.challenge;
 
 import java.time.Instant;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "challenges")
+@Table(name = "challenges", indexes = {@Index(name = "challengeCategoryIndex", columnList = "category", unique = false), @Index(name = "challengeCreatedByUserIdIndex", columnList = "createdByUserId", unique = false)})
 public class Challenge {
-	private long id;
 
+	private long id;
 	private long createdByUserId;
 	private String title;
 	private String description;
@@ -20,6 +22,7 @@ public class Challenge {
 	private String category;
 	private Instant createdAt;
 	private boolean deleted;
+	private boolean createdByImport;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +38,8 @@ public class Challenge {
 	public void setTitle(String title) {
 		this.title = title;
 	}
+
+	@Column(columnDefinition = "VARCHAR(2048)")
 	public String getDescription() {
 		return description;
 	}
@@ -71,6 +76,12 @@ public class Challenge {
 	}
 	public void setDeleted(boolean deleted) {
 		this.deleted = deleted;
+	}
+	public boolean isCreatedByImport() {
+		return createdByImport;
+	}
+	public void setCreatedByImport(boolean createdByImport) {
+		this.createdByImport = createdByImport;
 	}
 
 }

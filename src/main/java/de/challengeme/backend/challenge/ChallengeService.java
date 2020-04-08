@@ -21,6 +21,10 @@ public class ChallengeService {
 
 	Challenge dailyChallenge;
 
+	public void deleteImportedChallenges() {
+		challengeRepository.deleteImportedChallenges();
+	}
+
 	public List<Challenge> getChallengesCreatedByUser(User user) {
 		return challengeRepository.getChallengesCreatedByUser(user.getId());
 	}

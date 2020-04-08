@@ -12,6 +12,10 @@ public class UserService {
 	@Autowired
 	private UserRepository userRepository;
 
+	public int getCountOfAdminUsers() {
+		return userRepository.getCountOfAdminUsers();
+	}
+
 	public User createUser() {
 		while (true) {
 			UUID userId = UUID.randomUUID();
@@ -33,5 +37,13 @@ public class UserService {
 			userRepository.save(user);
 		}
 		return user;
+	}
+
+	public User getRootUser() {
+		return userRepository.getRootUser();
+	}
+
+	public void save(User user) {
+		userRepository.saveAndFlush(user);
 	}
 }

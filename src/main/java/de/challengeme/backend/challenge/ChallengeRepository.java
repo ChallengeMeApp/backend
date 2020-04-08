@@ -22,4 +22,7 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 	@Query(value = "DELETE FROM challenges WHERE created_by_user_id=:userId AND id = :challengeId", nativeQuery = true)
 	public void deleteChallenge(long userId, long challengeId);
 
+	@Query(value = "DELETE FROM challenges WHERE created_by_import=true", nativeQuery = true)
+	public void deleteImportedChallenges();
+
 }

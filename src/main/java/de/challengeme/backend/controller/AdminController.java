@@ -19,4 +19,18 @@ public class AdminController {
 	@Autowired
 	private UserService userService;
 
+	//	@GetMapping("/users/{userId}/importChallenges")
+	//	@ApiOperation(value = "Imports challenges from Goolge Doc.", response = ResponseEntity.class)
+	//	public Object createChallenge(@PathVariable(value = "userId") String userId, @RequestBody CreateChallengeBody challengeBody) {
+	//		User user = userService.getUser(userId);
+	//		if (user == null) {
+	//			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+	//		}
+	//		if (!user.isAdmin()) {
+	//			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authorized.");
+	//		}
+	//
+	//		return ResponseEntity.status(HttpStatus.OK).body("Import Successful.");
+	//	}
+
 }
