@@ -4,6 +4,8 @@ import java.time.Instant;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -25,9 +27,11 @@ public class Challenge {
 	private String description;
 	private Long durationSeconds;
 
+	@Enumerated(EnumType.STRING)
 	@Column(columnDefinition = "VARCHAR(16)")
 	private Category category;
 
+	@Enumerated(EnumType.STRING)
 	@Column(columnDefinition = "VARCHAR(16)")
 	private ChallengeKind kind;
 
