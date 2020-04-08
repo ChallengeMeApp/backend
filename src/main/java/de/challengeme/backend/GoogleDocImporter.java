@@ -155,7 +155,7 @@ public class GoogleDocImporter {
 		if (category.toLowerCase().contains("kreativ")) {
 			return Category.creative;
 		}
-		if (category.toLowerCase().contains("Do")) {
+		if (category.toLowerCase().contains("do")) {
 			return Category.selfcare;
 		}
 		return null;
