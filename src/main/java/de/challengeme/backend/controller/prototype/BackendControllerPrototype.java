@@ -80,7 +80,7 @@ public class BackendControllerPrototype {
 		Challenge challenge = new Challenge();
 		challenge.setDescription(challengeBody.getDescription());
 		challenge.setTitle(challengeBody.getTitle());
-		challenge.setCategory(challengeBody.getCategory());
+		challenge.setCategory(Category.valueOf(challengeBody.getCategory()));
 		challenge.setDurationSeconds(challengeBody.getDurationSeconds());
 
 		challengeService.createChallenge(user, challenge);

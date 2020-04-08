@@ -26,7 +26,7 @@ public class CreateChallengeBody {
 	public long getDurationSeconds() {
 		return durationSeconds;
 	}
-	public void setDurationSecondss(long durationSeconds) {
+	public void setDurationSeconds(long durationSeconds) {
 		this.durationSeconds = durationSeconds;
 	}
 

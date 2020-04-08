@@ -1,5 +1,5 @@
 package de.challengeme.backend.challenge;
 
 public enum Category {
-	art, eco, fun, education, household, selfcare, social, physical
+	household, physical, selfcare, eco, fun, education, social, cooking, noComfortZone, creative
 }
