@@ -1,4 +1,4 @@
-package de.challengeme.backend.controller.prototype;
+package de.challengeme.backend.controller.v1;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,10 +22,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping("/api/prototype")
-@Api(value = "API for the prototype App.", description = "API for the prototype App.", tags = {"Backend Prototype"})
+@RequestMapping("/api/v1")
+@Api(value = "API for the prototype App.", description = "API for the app.", tags = {"Backend Version 1"})
 @CrossOrigin
-public class BackendControllerPrototype {
+public class BackendControllerV1 {
 
 	@Autowired
 	private ChallengeService challengeService;
@@ -36,15 +36,6 @@ public class BackendControllerPrototype {
 	@PostMapping("/users")
 	public User createUser() {
 		return userService.createUser();
-	}
-
-	@GetMapping(value = "/daily_tip", produces = "application/json")
-	public Tipp getDailyTip() {
-		Tipp result = new Tipp();
-		result.setId(1);
-		result.setTitle("Eating");
-		result.setDescription("An apple a day keeps the doctor away - a challenge a day keeps the clouds away :)");
-		return result;
 	}
 
 	@GetMapping("/daily_challenge")
@@ -69,17 +60,16 @@ public class BackendControllerPrototype {
 
 	@PostMapping("/users/{userId}/challenges")
 	@ApiOperation(value = "Creates a new challenge.", response = Challenge.class)
-	public Object createChallenge(@PathVariable(value = "userId") String userId, @RequestBody CreateChallengeBody challengeBody) {
+	public Object createChallenge(@PathVariable(value = "userId") String userId, @RequestBody Challenge challenge) {
 		User user = userService.getUser(userId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}
 
-		Challenge challenge = new Challenge();
-		challenge.setDescription(challengeBody.getDescription());
-		challenge.setTitle(challengeBody.getTitle());
-		challenge.setCategory(Category.valueOf(challengeBody.getCategory()));
-		challenge.setDurationSeconds(challengeBody.getDurationSeconds());
+		challenge.setId(0);
+		challenge.setDeleted(false);
+		challenge.setCreatedByImport(false);
+		// TODO: filter invalid challenges
 
 		challengeService.createChallenge(user, challenge);
 		return challenge;
@@ -96,5 +86,4 @@ public class BackendControllerPrototype {
 		challengeService.markChallengeAsDeleted(user, challengeId);
 		return "ok";
 	}
-
 }
