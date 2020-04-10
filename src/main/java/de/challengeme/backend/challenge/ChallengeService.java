@@ -71,12 +71,13 @@ public class ChallengeService {
 		challengeRepository.saveAndFlush(challenge);
 	}
 
-	public void markChallengeAsDeleted(User user, long challengeId) {
+	public Challenge markChallengeAsDeleted(User user, long challengeId) {
 		Challenge challenge = challengeRepository.getOne(challengeId);
 		Preconditions.checkNotNull(challenge, "No challenge found with that id.");
 		if (challenge.getCreatedByUserId() == user.getId()) {
 			challenge.setDeletedAt(Instant.now());
 			challengeRepository.saveAndFlush(challenge);
+			return challenge;
 		} else {
 			throw new IllegalArgumentException("Challenge was not created by this user.");
 		}

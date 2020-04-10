@@ -83,7 +83,6 @@ public class BackendControllerV1 {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}
 
-		challengeService.markChallengeAsDeleted(user, challengeId);
-		return "ok";
+		return challengeService.markChallengeAsDeleted(user, challengeId);
 	}
 }
