@@ -44,7 +44,7 @@ public class BackendControllerV1 {
 	}
 
 	@GetMapping("/random_challenge")
-	public Challenge getRandomChallenge(@RequestParam(value = "category", defaultValue = "art") Category category) {
+	public Challenge getRandomChallenge(@RequestParam(value = "category", defaultValue = "household") Category category) {
 		return challengeService.getRandomChallenge(category);
 	}
 
@@ -67,7 +67,7 @@ public class BackendControllerV1 {
 		}
 
 		challenge.setId(0);
-		challenge.setDeleted(false);
+		challenge.setDeletedAt(null);
 		challenge.setCreatedByImport(false);
 		// TODO: filter invalid challenges
 

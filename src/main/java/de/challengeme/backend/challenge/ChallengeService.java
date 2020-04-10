@@ -1,6 +1,8 @@
 package de.challengeme.backend.challenge;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.base.Preconditions;
 
+import de.challengeme.backend.timer.TimerService;
+import de.challengeme.backend.timer.TimerType;
 import de.challengeme.backend.user.User;
 
 @Service
@@ -19,7 +23,8 @@ public class ChallengeService {
 	@Autowired
 	private ChallengeResultRepository challengeResultRepository;
 
-	Challenge dailyChallenge;
+	@Autowired
+	private TimerService timerService;
 
 	public void deleteImportedChallenges() {
 		challengeRepository.deleteImportedChallenges();
@@ -37,11 +42,23 @@ public class ChallengeService {
 		return challengeRepository.getRandomChallenge(category.toString());
 	}
 
+	/**
+	 * Needs database locking if more than one backend is in use.
+	 * 
+	 * @return
+	 */
 	public Challenge getDailyChallenge() {
-		if (dailyChallenge == null) {
-			dailyChallenge = challengeRepository.getRandomChallenge();
+		Challenge result = null;
+		Long challengeId = timerService.getLinkedObjectOfTimer(TimerType.CHALLENGE);
+
+		if (challengeId == null) {
+			result = challengeRepository.getRandomChallenge();
+			Instant validUntil = LocalDate.now().atStartOfDay().plusDays(1).toInstant(ZoneOffset.UTC);
+			timerService.setTimer(TimerType.CHALLENGE, validUntil, result.getId());
+		} else {
+			result = challengeRepository.getChallengeFromId(challengeId);
 		}
-		return dailyChallenge;
+		return result;
 	}
 
 	public List<Challenge> list() {
@@ -58,7 +75,7 @@ public class ChallengeService {
 		Challenge challenge = challengeRepository.getOne(challengeId);
 		Preconditions.checkNotNull(challenge, "No challenge found with that id.");
 		if (challenge.getCreatedByUserId() == user.getId()) {
-			challenge.setDeleted(true);
+			challenge.setDeletedAt(Instant.now());
 			challengeRepository.saveAndFlush(challenge);
 		} else {
 			throw new IllegalArgumentException("Challenge was not created by this user.");

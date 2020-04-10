@@ -53,7 +53,7 @@ public class BackendControllerPrototype {
 	}
 
 	@GetMapping("/random_challenge")
-	public Challenge getRandomChallenge(@RequestParam(value = "category", defaultValue = "art") Category category) {
+	public Challenge getRandomChallenge(@RequestParam(value = "category", defaultValue = "household") Category category) {
 		return challengeService.getRandomChallenge(category);
 	}
 

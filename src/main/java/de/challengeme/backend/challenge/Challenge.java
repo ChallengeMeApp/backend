@@ -36,7 +36,7 @@ public class Challenge {
 	private ChallengeKind kind;
 
 	private Instant createdAt;
-	private boolean deleted;
+	private Instant deletedAt;
 	private boolean createdByImport;
 	private boolean repeatable;
 	private String material;
@@ -133,11 +133,12 @@ public class Challenge {
 	public void setCreatedAt(Instant createdAt) {
 		this.createdAt = createdAt;
 	}
-	public boolean isDeleted() {
-		return deleted;
+
+	public Instant getDeletedAt() {
+		return deletedAt;
 	}
-	public void setDeleted(boolean deleted) {
-		this.deleted = deleted;
+	public void setDeletedAt(Instant deletedAt) {
+		this.deletedAt = deletedAt;
 	}
 	public boolean isCreatedByImport() {
 		return createdByImport;
