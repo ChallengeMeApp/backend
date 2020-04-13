@@ -34,8 +34,8 @@ public class BackendControllerV1 {
 	private UserService userService;
 
 	@PostMapping("/users")
-	@ApiOperation(value = "Creates or edits a user depending of if a valid user-object with a valid userId is submitted. Returns the new user.", response = User.class)
-	public User createOrEditUser(@RequestBody User user) {
+	@ApiOperation(value = "Creates or edits a user depending on if a valid user-object with a valid userId is submitted. Returns the newly created or edited user.", response = User.class)
+	public Object createOrEditUser(@RequestBody User user) {
 
 		if (user == null) {
 			return userService.createUser();
@@ -46,6 +46,9 @@ public class BackendControllerV1 {
 			userToSave = userService.createUser();
 		} else {
 			userToSave = userService.getUser(user.getUserId());
+			if (userToSave == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			}
 		}
 
 		if (user.getUserName() != null) {
