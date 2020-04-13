@@ -34,8 +34,40 @@ public class BackendControllerV1 {
 	private UserService userService;
 
 	@PostMapping("/users")
-	public User createUser() {
-		return userService.createUser();
+	@ApiOperation(value = "Creates or edits a user depending of if a valid user-object with a valid userId is submitted. Returns the new user.", response = User.class)
+	public User createOrEditUser(@RequestBody User user) {
+
+		if (user == null) {
+			return userService.createUser();
+		}
+
+		User userToSave;
+		if (user.getUserId() == null) {
+			userToSave = userService.createUser();
+		} else {
+			userToSave = userService.getUser(user.getUserId());
+		}
+
+		if (user.getUserName() != null) {
+			userToSave.setUserName(user.getUserName());
+		}
+
+		if (user.getFirstName() != null) {
+			userToSave.setFirstName(user.getFirstName());
+		}
+
+		if (user.getLastName() != null) {
+			userToSave.setLastName(user.getLastName());
+		}
+
+		userService.save(userToSave);
+		return userToSave;
+	}
+
+	@GetMapping("/users/{userId}")
+	@ApiOperation(value = "Gets a user object for the given userId.", response = User.class)
+	public User getUser(@PathVariable(value = "userId") String userId) {
+		return userService.getUser(userId);
 	}
 
 	@GetMapping("/daily_challenge")

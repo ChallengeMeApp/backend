@@ -30,6 +30,10 @@ public class UserService {
 		}
 	}
 
+	public User getUser(UUID userId) {
+		return getUser(userId.toString());
+	}
+
 	public User getUser(String userId) {
 		User user = userRepository.getByUUID(userId);
 		if (user != null) {

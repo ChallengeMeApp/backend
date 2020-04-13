@@ -20,6 +20,7 @@ public class User {
 	private long id;
 	private boolean admin;
 	private UUID userId;
+	private String userName;
 	private String firstName;
 	private String lastName;
 	private Instant createdAt;
@@ -71,6 +72,12 @@ public class User {
 	}
 	public void setLastRequestAt(Instant lastRequestAt) {
 		this.lastRequestAt = lastRequestAt;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 
 }
