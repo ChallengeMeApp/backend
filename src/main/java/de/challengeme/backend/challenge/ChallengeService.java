@@ -6,6 +6,8 @@ import java.time.ZoneOffset;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Preconditions;
@@ -34,12 +36,23 @@ public class ChallengeService {
 		return challengeRepository.getChallengesCreatedByUser(user.getId());
 	}
 
+	public Slice<Challenge> getChallengesCreatedByUser(User user, Pageable pageable) {
+		return challengeRepository.getChallengesCreatedByUser(user.getId(), pageable);
+	}
+
 	public Challenge getRandomChallenge(Category category, User user) {
 		return challengeRepository.getRandomChallenge(category.toString(), user.getId());
 	}
 
 	public Challenge getRandomChallenge(Category category) {
 		return challengeRepository.getRandomChallenge(category.toString());
+	}
+
+	public Slice<Challenge> getChallengesForStream(Category category, User user, Pageable pageable) {
+		if (category == null) {
+			return challengeRepository.getChallengesForStream(user.getId(), pageable);
+		}
+		return challengeRepository.getChallengesForStream(category.toString(), user.getId(), pageable);
 	}
 
 	/**
@@ -81,5 +94,13 @@ public class ChallengeService {
 		} else {
 			throw new IllegalArgumentException("Challenge was not created by this user.");
 		}
+	}
+
+	public Challenge getChallengeFromId(long challengeId) {
+		return challengeRepository.getChallengeFromId(challengeId);
+	}
+
+	public void save(ChallengeResult challengeResult) {
+		challengeResultRepository.saveAndFlush(challengeResult);
 	}
 }
