@@ -165,6 +165,9 @@ public class GoogleDocImporter {
 		if (category.toLowerCase().contains("do")) {
 			return Category.selfcare;
 		}
+		if (category.toLowerCase().contains("haus")) {
+			return Category.household;
+		}
 		return null;
 	}
 
