@@ -60,7 +60,7 @@ public class BackendControllerPrototype {
 	@GetMapping("/users/{userId}/challenges")
 	@ApiOperation(value = "Gets all challenges, created by the user.", response = Challenge.class, responseContainer = "List")
 	public Object getCreatedChallenges(@PathVariable(value = "userId") String userId) {
-		User user = userService.getUser(userId);
+		User user = userService.getUserByUserId(userId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}
@@ -70,7 +70,7 @@ public class BackendControllerPrototype {
 	@PostMapping("/users/{userId}/challenges")
 	@ApiOperation(value = "Creates a new challenge.", response = Challenge.class)
 	public Object createChallenge(@PathVariable(value = "userId") String userId, @RequestBody CreateChallengeBody challengeBody) {
-		User user = userService.getUser(userId);
+		User user = userService.getUserByUserId(userId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}
@@ -88,7 +88,7 @@ public class BackendControllerPrototype {
 	@DeleteMapping("/users/{userId}/challenges/{challengeId}")
 	@ApiOperation(value = "Removes the challenge with the corresponding id.", response = String.class)
 	public Object deleteChallenge(@PathVariable(value = "userId") String userId, @PathVariable(value = "challengeId") Long challengeId) {
-		User user = userService.getUser(userId);
+		User user = userService.getUserByUserId(userId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}

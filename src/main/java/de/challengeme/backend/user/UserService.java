@@ -19,7 +19,7 @@ public class UserService {
 	public User createUser() {
 		while (true) {
 			UUID userId = UUID.randomUUID();
-			User user = userRepository.getByUUID(userId.toString());
+			User user = userRepository.getByUserId(userId.toString());
 			if (user == null) {
 				user = new User();
 				user.setUserId(userId);
@@ -30,12 +30,16 @@ public class UserService {
 		}
 	}
 
-	public User getUser(UUID userId) {
-		return getUser(userId.toString());
+	public User getUserByUserName(String userName) {
+		return userRepository.getByUserName(userName);
 	}
 
-	public User getUser(String userId) {
-		User user = userRepository.getByUUID(userId);
+	public User getUserByUserId(UUID userId) {
+		return getUserByUserId(userId.toString());
+	}
+
+	public User getUserByUserId(String userId) {
+		User user = userRepository.getByUserId(userId);
 		if (user != null) {
 			user.setLastRequestAt(Instant.now());
 			userRepository.save(user);

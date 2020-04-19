@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.base.Objects;
+
 import de.challengeme.backend.DefaultResponse;
 import de.challengeme.backend.challenge.Category;
 import de.challengeme.backend.challenge.Challenge;
@@ -26,6 +28,8 @@ import de.challengeme.backend.user.User;
 import de.challengeme.backend.user.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -41,6 +45,7 @@ public class BackendControllerV1 {
 
 	@PostMapping("/users")
 	@ApiOperation(value = "Creates or edits a user depending on if a valid user-object with a valid userId is submitted. Returns the newly created or edited user.", response = User.class)
+	@ApiResponses(value = {@ApiResponse(code = 226, response = Void.class, message = "User name already in use."), @ApiResponse(code = 404, message = "User not found by given user id.")})
 	public Object createOrEditUser(@RequestBody User user) {
 
 		if (user == null) {
@@ -49,11 +54,27 @@ public class BackendControllerV1 {
 
 		User userToSave;
 		if (user.getUserId() == null) {
+
+			// check if user name is already in use
+			if (user.getUserName() != null) {
+				if (userService.getUserByUserName(user.getUserName()) != null) {
+					return ResponseEntity.status(HttpStatus.IM_USED).body("User name already in use.");
+				}
+			}
+
 			userToSave = userService.createUser();
 		} else {
-			userToSave = userService.getUser(user.getUserId());
+			userToSave = userService.getUserByUserId(user.getUserId());
 			if (userToSave == null) {
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			}
+
+			// check if user name is already in use
+			if (user.getUserName() != null) {
+				User check = userService.getUserByUserName(user.getUserName());
+				if (check != null && !Objects.equal(user.getUserId(), check.getUserId())) {
+					return ResponseEntity.status(HttpStatus.IM_USED).body("User name already in use.");
+				}
 			}
 		}
 
@@ -76,7 +97,7 @@ public class BackendControllerV1 {
 	@GetMapping("/users/{userId}")
 	@ApiOperation(value = "Gets a user object for the given userId.", response = User.class)
 	public Object getUser(@PathVariable String userId) {
-		User result = userService.getUser(userId);
+		User result = userService.getUserByUserId(userId);
 		if (result == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}
@@ -91,7 +112,7 @@ public class BackendControllerV1 {
 	@GetMapping("/users/{userId}/challenge_stream")
 	@ApiOperation(value = "Returns the stream of challenges for the different categories. If no category is given, it returns all of them.", response = Challenge.class, responseContainer = "List")
 	public Object getChallengeStream(@PathVariable String userId, @RequestParam(required = false) Category category, @RequestParam(defaultValue = "0") Integer pageIndex, @RequestParam(defaultValue = "10") Integer pageSize) {
-		User user = userService.getUser(userId);
+		User user = userService.getUserByUserId(userId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}
@@ -104,7 +125,7 @@ public class BackendControllerV1 {
 	@ApiOperation(value = "Stores a challenge result (success/failure).", response = DefaultResponse.class)
 	public Object setChallengeResult(@PathVariable String userId, @PathVariable Long challengeId, @RequestParam boolean success) {
 
-		User user = userService.getUser(userId);
+		User user = userService.getUserByUserId(userId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}
@@ -128,7 +149,7 @@ public class BackendControllerV1 {
 	@GetMapping("/users/{userId}/own_challenges")
 	@ApiOperation(value = "Gets all challenges, created by the user.", response = Challenge.class, responseContainer = "List")
 	public Object getCreatedChallenges(@PathVariable String userId, @RequestParam(defaultValue = "0") Integer pageIndex, @RequestParam(defaultValue = "10") Integer pageSize) {
-		User user = userService.getUser(userId);
+		User user = userService.getUserByUserId(userId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}
@@ -139,7 +160,7 @@ public class BackendControllerV1 {
 	@PostMapping("/users/{userId}/own_challenges")
 	@ApiOperation(value = "Creates a new challenge.", response = Challenge.class)
 	public Object createChallenge(@PathVariable String userId, @RequestBody Challenge challenge) {
-		User user = userService.getUser(userId);
+		User user = userService.getUserByUserId(userId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}
@@ -156,7 +177,7 @@ public class BackendControllerV1 {
 	@DeleteMapping("/users/{userId}/own_challenges/{challengeId}")
 	@ApiOperation(value = "Removes the challenge with the corresponding id.", response = String.class)
 	public Object deleteChallenge(@PathVariable String userId, @PathVariable Long challengeId) {
-		User user = userService.getUser(userId);
+		User user = userService.getUserByUserId(userId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}

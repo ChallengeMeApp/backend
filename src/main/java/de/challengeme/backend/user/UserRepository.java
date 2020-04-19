@@ -6,7 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Query(value = "SELECT * FROM users WHERE user_id = UUID_TO_BIN(:userId)", nativeQuery = true)
-	public User getByUUID(String userId);
+	public User getByUserId(String userId);
+
+	@Query(value = "SELECT * FROM users WHERE user_name = :userName", nativeQuery = true)
+	public User getByUserName(String userName);
 
 	@Query(value = "SELECT COUNT(*) FROM users WHERE admin = true", nativeQuery = true)
 	public int getCountOfAdminUsers();
