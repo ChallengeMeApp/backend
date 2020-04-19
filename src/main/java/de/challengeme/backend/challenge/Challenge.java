@@ -38,7 +38,7 @@ public class Challenge {
 	private Instant createdAt;
 	private Instant deletedAt;
 	private boolean createdByImport;
-	private boolean repeatable;
+	private Integer repeatableAfterDays;
 	private String material;
 
 	private int pointsWin;
@@ -77,11 +77,12 @@ public class Challenge {
 	public void setMaterial(String material) {
 		this.material = material;
 	}
-	public boolean isRepeatable() {
-		return repeatable;
+
+	public Integer getRepeatableAfterDays() {
+		return repeatableAfterDays;
 	}
-	public void setRepeatable(boolean repeatable) {
-		this.repeatable = repeatable;
+	public void setRepeatableAfterDays(Integer repeatableAfterDays) {
+		this.repeatableAfterDays = repeatableAfterDays;
 	}
 	public long getId() {
 		return id;

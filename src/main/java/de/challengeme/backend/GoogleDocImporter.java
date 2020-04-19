@@ -60,10 +60,17 @@ public class GoogleDocImporter {
 							challenge.setTitle(row.getCell(1).toString());
 							challenge.setDescription(row.getCell(2).toString());
 							challenge.setKind(mapChallengeKind(row.getCell(3).toString()));
-							challenge.setRepeatable(row.getCell(6).toString().toLowerCase().contains("j"));
-							challenge.setMaterial(mapMaterial(row.getCell(7).toString(), row.getCell(8).toString()));
 
-							String duration = row.getCell(9).toString();
+							if (row.getCell(7).toString().toLowerCase().contains("j")) {
+								try {
+									challenge.setRepeatableAfterDays((int) (Double.parseDouble(row.getCell(8).toString())));
+								} catch (NumberFormatException e) {
+									// not repeatable
+								}
+							}
+							challenge.setMaterial(mapMaterial(row.getCell(9).toString(), row.getCell(10).toString()));
+
+							String duration = row.getCell(2).toString();
 							if (!Strings.isNullOrEmpty(duration)) {
 								try {
 									challenge.setDurationSeconds((long) (Double.parseDouble(duration) * 60));
@@ -72,22 +79,22 @@ public class GoogleDocImporter {
 								}
 							}
 
-							String points = row.getCell(12).toString();
+							String points = row.getCell(13).toString();
 							if (!Strings.isNullOrEmpty(points)) {
 								challenge.setPointsWin((int) Double.parseDouble(points));
 							}
 
-							points = row.getCell(13).toString();
+							points = row.getCell(14).toString();
 							if (!Strings.isNullOrEmpty(points)) {
 								challenge.setPointsLoose((int) Double.parseDouble(points));
 							}
 
-							points = row.getCell(14).toString();
+							points = row.getCell(15).toString();
 							if (!Strings.isNullOrEmpty(points)) {
 								challenge.setPointsParticipation((int) Double.parseDouble(points));
 							}
 
-							challenge.setAddToTreasureChest(row.getCell(15).toString().toLowerCase().contains("j"));
+							challenge.setAddToTreasureChest(row.getCell(16).toString().toLowerCase().contains("j"));
 							challenge.setCreatedByImport(true);
 
 							challengeService.createChallenge(user, challenge);
