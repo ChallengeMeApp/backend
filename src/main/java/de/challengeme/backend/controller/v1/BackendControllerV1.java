@@ -105,9 +105,23 @@ public class BackendControllerV1 {
 		return result;
 	}
 
+	@GetMapping("/challenge/{challengeId}")
+	@ApiOperation(value = "Returns a challenge for the corresponding challengeId.", response = Challenge.class)
+	public Object getChallengeById(@PathVariable long challengeId) {
+		Challenge result = challengeService.getChallengeFromId(challengeId);
+		if (result == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Challenge not found.");
+		}
+		enrichCreatedByUserName(result);
+		return result;
+	}
+
 	@GetMapping("/daily_challenge")
+	@ApiOperation(value = "Returns the daily challenge.", response = Challenge.class)
 	public Challenge getDailyChallenge() {
-		return challengeService.getDailyChallenge();
+		Challenge result = challengeService.getDailyChallenge();
+		enrichCreatedByUserName(result);
+		return result;
 	}
 
 	@GetMapping("/users/{userId}/challenge_stream")
