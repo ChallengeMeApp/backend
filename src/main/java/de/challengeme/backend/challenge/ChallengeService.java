@@ -49,10 +49,7 @@ public class ChallengeService {
 	}
 
 	public Slice<Challenge> getChallengesForStream(Category category, User user, Pageable pageable) {
-		if (category == null) {
-			return challengeRepository.getChallengesForStream(user.getId(), pageable);
-		}
-		return challengeRepository.getChallengesForStream(category.toString(), user.getId(), pageable);
+		return challengeRepository.getChallengesForStream(category == null ? null : category.toString(), user.getId(), pageable);
 	}
 
 	/**

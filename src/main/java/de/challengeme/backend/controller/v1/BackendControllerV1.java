@@ -1,6 +1,7 @@
 package de.challengeme.backend.controller.v1;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -118,7 +119,27 @@ public class BackendControllerV1 {
 		}
 
 		Slice<Challenge> resultSlice = challengeService.getChallengesForStream(category, user, PageRequest.of(pageIndex, pageSize));
-		return resultSlice.getContent();
+		List<Challenge> result = resultSlice.getContent();
+		enrichCreatedByUserName(result);
+		return result;
+	}
+
+	/**
+	 * Workaround function for @Formula not working in Hibernate for 7 years. It is advertised to work in the next
+	 * version.
+	 */
+	private void enrichCreatedByUserName(List<Challenge> challenges) {
+		for (Challenge challenge : challenges) {
+			enrichCreatedByUserName(challenge);
+		}
+	}
+
+	/**
+	 * Workaround function for @Formula not working in Hibernate for 7 years. It is advertised to work in the next
+	 * version.
+	 */
+	private void enrichCreatedByUserName(Challenge challenge) {
+		challenge.setCreatedByUserName(userService.getUserNameFromId(challenge.getCreatedByUserId()));
 	}
 
 	@PostMapping("/users/{userId}/challenge_result/{challengeId}")
@@ -154,7 +175,9 @@ public class BackendControllerV1 {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}
 		Slice<Challenge> resultSlice = challengeService.getChallengesCreatedByUser(user, PageRequest.of(pageIndex, pageSize));
-		return resultSlice.getContent();
+		List<Challenge> result = resultSlice.getContent();
+		enrichCreatedByUserName(result);
+		return result;
 	}
 
 	@PostMapping("/users/{userId}/own_challenges")
@@ -171,6 +194,7 @@ public class BackendControllerV1 {
 		// TODO: filter invalid challenges
 
 		challengeService.createChallenge(user, challenge);
+		enrichCreatedByUserName(challenge);
 		return challenge;
 	}
 
@@ -182,6 +206,8 @@ public class BackendControllerV1 {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}
 
-		return challengeService.markChallengeAsDeleted(user, challengeId);
+		Challenge result = challengeService.markChallengeAsDeleted(user, challengeId);
+		enrichCreatedByUserName(result);
+		return result;
 	}
 }

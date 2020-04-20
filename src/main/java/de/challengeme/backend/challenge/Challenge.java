@@ -11,6 +11,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @Entity
 @Table(name = "challenges", indexes = {@Index(name = "challengeCategoryIndex", columnList = "category", unique = false), @Index(name = "challengeCreatedByUserIdIndex", columnList = "createdByUserId", unique = false)})
@@ -21,6 +24,13 @@ public class Challenge {
 	private long id;
 
 	private long createdByUserId;
+
+	// This is how it should be done but there is a bug in Hibernate for 7 years, which prevents it from working
+	//@Formula("(SELECT u.user_name FROM users u WHERE u.id = 1)")
+	@JsonInclude()
+	@Transient
+	private String createdByUserName;
+
 	private String title;
 
 	@Column(columnDefinition = "VARCHAR(2048)")
@@ -146,6 +156,12 @@ public class Challenge {
 	}
 	public void setCreatedByImport(boolean createdByImport) {
 		this.createdByImport = createdByImport;
+	}
+	public String getCreatedByUserName() {
+		return createdByUserName;
+	}
+	public void setCreatedByUserName(String createdByUserName) {
+		this.createdByUserName = createdByUserName;
 	}
 
 }

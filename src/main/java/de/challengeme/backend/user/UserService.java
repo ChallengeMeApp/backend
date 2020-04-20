@@ -1,6 +1,7 @@
 package de.challengeme.backend.user;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,5 +54,13 @@ public class UserService {
 
 	public void save(User user) {
 		userRepository.saveAndFlush(user);
+	}
+
+	public String getUserNameFromId(long id) {
+		Optional<User> o = userRepository.findById(id);
+		if (o.isPresent()) {
+			return o.get().getUserName();
+		}
+		return null;
 	}
 }

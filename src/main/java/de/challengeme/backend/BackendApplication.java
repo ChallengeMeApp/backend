@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 
 import com.google.common.base.Joiner;
 
@@ -22,7 +21,6 @@ public class BackendApplication {
 
 	private static List<String> arguments;
 	private static Logger logger = LogManager.getLogger();
-	private static ConfigurableApplicationContext ctx;
 
 	@Autowired
 	private UserService userService;
@@ -45,6 +43,7 @@ public class BackendApplication {
 				user.setAdmin(true);
 				user.setFirstName("root");
 				user.setLastName("root");
+				user.setUserName("CM Team");
 				userService.save(user);
 				logger.info("Created root user: " + user.getUserId());
 			}

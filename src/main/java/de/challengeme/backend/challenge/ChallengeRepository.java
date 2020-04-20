@@ -38,22 +38,10 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 			"	SELECT *, (successes / (successes + failures)) as successFailureRatio FROM (" + 
 			"	 SELECT c.*, SUM(case when cr.success = 1 then 1 else 0 end) as successes, SUM(case when cr.success = 0 then 1 else 0 end) as failures FROM challenges AS c" + 
 			"	 LEFT JOIN challengeresults AS cr ON cr.challenge_id = c.id" + 
-			"    WHERE c.deleted_at IS NULL AND c.kind = 'self' AND c.created_by_import AND c.category = :category AND (c.repeatable OR c.id NOT IN (SELECT challenge_id FROM challengeresults WHERE user_id=:userId)" +
+			"    WHERE c.deleted_at IS NULL AND c.kind = 'self' AND c.created_by_import AND (:category IS NULL OR c.category = :category) AND (c.repeatable_after_days IS NOT NULL OR c.id NOT IN (SELECT challenge_id FROM challengeresults WHERE user_id=:userId)" +
 			"   )" + 
 			"	GROUP by c.id) as i" + 
 			"	ORDER BY successFailureRatio DESC", nativeQuery = true)
 	public Slice<Challenge> getChallengesForStream(String category, long userId, Pageable pageable);
-	// @formatter:on
-
-	// @formatter:off
-	@Query(value = 
-			"	SELECT *, (successes / (successes + failures)) as successFailureRatio FROM (" + 
-			"	 SELECT c.*, SUM(case when cr.success = 1 then 1 else 0 end) as successes, SUM(case when cr.success = 0 then 1 else 0 end) as failures FROM challenges AS c" + 
-			"	 LEFT JOIN challengeresults AS cr ON cr.challenge_id = c.id" + 
-			"    WHERE c.deleted_at IS NULL AND c.kind = 'self' AND c.created_by_import AND (c.repeatable OR c.id NOT IN (SELECT challenge_id FROM challengeresults WHERE user_id=:userId)" +
-			"   )" + 
-			"	GROUP by c.id) as i" + 
-			"	ORDER BY successFailureRatio DESC", nativeQuery = true)
-	public Slice<Challenge> getChallengesForStream(long userId, Pageable pageable);
 	// @formatter:on
 }
