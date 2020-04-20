@@ -3,6 +3,7 @@ package de.challengeme.backend.user;
 import java.time.Instant;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,8 +11,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import de.challengeme.backend.validation.NoHtml;
+import de.challengeme.backend.validation.UserName;
+import io.swagger.annotations.ApiModelProperty;
 
 @Entity
 @Table(name = "users", indexes = {@Index(name = "userNameIndex", columnList = "userName", unique = true), @Index(name = "userUserIdIndex", columnList = "userId", unique = true)})
@@ -19,12 +25,40 @@ public class User {
 
 	@JsonIgnore
 	private long id;
+
+	@ApiModelProperty(required = false, notes = "field is read-only")
 	private boolean admin;
+
+	@Nullable
+	@ApiModelProperty(required = false, notes = "field is read-only")
 	private UUID userId;
+
+	@Nullable
+	@NoHtml
+	@UserName(message = "A valid userName consists of letters and characters.")
+	@Size(min = 3, max = 30, message = "userName must be between 3 and 30 characters")
+	@Column(columnDefinition = "VARCHAR(30)")
+	@ApiModelProperty(allowableValues = "3-20 alphanumeric characters (a-z,A-Z,0-9)", example = "Anonymous")
 	private String userName;
+
+	@Nullable
+	@NoHtml
+	@Size(min = 2, max = 40, message = "userName must be between 2 and 40 characters")
+	@ApiModelProperty(allowableValues = "2-40 characters and no HTML", example = "Peter")
 	private String firstName;
+
+	@Nullable
+	@NoHtml
+	@Size(min = 2, max = 40, message = "userName must be between 2 and 40 characters")
+	@ApiModelProperty(allowableValues = "2-40 characters and no HTML", example = "Mues")
 	private String lastName;
+
+	@Nullable
+	@ApiModelProperty(required = false, notes = "field is read-only")
 	private Instant createdAt;
+
+	@Nullable
+	@ApiModelProperty(required = false, notes = "field is read-only")
 	private Instant lastRequestAt;
 
 	@Id

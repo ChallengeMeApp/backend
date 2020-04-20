@@ -3,6 +3,8 @@ package de.challengeme.backend.controller.v1;
 import java.time.Instant;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -46,8 +48,8 @@ public class BackendControllerV1 {
 
 	@PostMapping("/users")
 	@ApiOperation(value = "Creates or edits a user depending on if a valid user-object with a valid userId is submitted. Returns the newly created or edited user.", response = User.class)
-	@ApiResponses(value = {@ApiResponse(code = 226, response = Void.class, message = "User name already in use."), @ApiResponse(code = 404, message = "User not found by given user id.")})
-	public Object createOrEditUser(@RequestBody User user) {
+	@ApiResponses(value = {@ApiResponse(code = 400, response = Void.class, message = "Validation failed."), @ApiResponse(code = 226, response = Void.class, message = "User name already in use."), @ApiResponse(code = 404, message = "User not found by given user id.")})
+	public Object createOrEditUser(@RequestBody @Valid User user) {
 
 		if (user == null) {
 			return userService.createUser();
@@ -196,7 +198,8 @@ public class BackendControllerV1 {
 
 	@PostMapping("/users/{userId}/own_challenges")
 	@ApiOperation(value = "Creates a new challenge.", response = Challenge.class)
-	public Object createChallenge(@PathVariable String userId, @RequestBody Challenge challenge) {
+	@ApiResponses(value = {@ApiResponse(code = 400, response = Void.class, message = "Validation failed."), @ApiResponse(code = 404, message = "User not found by given user id.")})
+	public Object createChallenge(@PathVariable String userId, @RequestBody @Valid Challenge challenge) {
 		User user = userService.getUserByUserId(userId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
