@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 
@@ -18,6 +20,12 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 	@Query(value = "SELECT * FROM challenges WHERE deleted_at IS NULL AND kind = 'self' AND created_by_import = true ORDER BY rand() LIMIT 1", nativeQuery = true)
 	public Challenge getRandomChallenge();
 
+	@Query(value = "SELECT * FROM challenges WHERE created_by_import = true AND title = :title", nativeQuery = true)
+	public Challenge getImportedChallengeFromTitle(String title);
+
+	@Query(value = "SELECT * FROM challenges WHERE created_by_import = true", nativeQuery = true)
+	public List<Challenge> getImportedChallenges();
+
 	@Query(value = "SELECT * FROM challenges WHERE id = :id LIMIT 1", nativeQuery = true)
 	public Challenge getChallengeFromId(long id);
 
@@ -27,9 +35,13 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 	@Query(value = "SELECT * FROM challenges WHERE deleted_at IS NULL AND created_by_user_id=:userId ORDER BY created_at", nativeQuery = true)
 	public Slice<Challenge> getChallengesCreatedByUser(long userId, Pageable pageable);
 
-	@Query(value = "DELETE FROM challenges WHERE created_by_user_id=:userId AND id = :challengeId", nativeQuery = true)
-	public void deleteChallenge(long userId, long challengeId);
+	@Modifying
+	@Transactional
+	@Query(value = "DELETE FROM challenges WHERE id = :challengeId", nativeQuery = true)
+	public void deleteChallenge(long challengeId);
 
+	@Modifying
+	@Transactional
 	@Query(value = "DELETE FROM challenges WHERE created_by_import=true", nativeQuery = true)
 	public void deleteImportedChallenges();
 

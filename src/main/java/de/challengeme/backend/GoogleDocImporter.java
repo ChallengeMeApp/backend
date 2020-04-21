@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import de.challengeme.backend.challenge.Category;
 import de.challengeme.backend.challenge.Challenge;
@@ -51,58 +53,81 @@ public class GoogleDocImporter {
 				XSSFSheet challengesSheet = wb.getSheet("Challenges");
 				int rowIndex = 6;
 				XSSFRow row;
+				Set<Long> challengesToDelete = Sets.newHashSet();
+				for (Challenge challenge : challengeService.getImportedChallenges()) {
+					challengesToDelete.add(challenge.getId());
+				}
+
 				while ((row = challengesSheet.getRow(rowIndex++)) != null) {
+
 					String category = row.getCell(0).toString();
-					if (!Strings.isNullOrEmpty(category)) {
-						Challenge challenge = new Challenge();
-						challenge.setCategory(mapCategory(category));
-						if (challenge.getCategory() != null) {
-							challenge.setTitle(row.getCell(1).toString());
-							challenge.setDescription(row.getCell(2).toString());
-							challenge.setKind(mapChallengeKind(row.getCell(3).toString()));
+					String title = row.getCell(1).toString();
+					if (!Strings.isNullOrEmpty(category) && !Strings.isNullOrEmpty(title)) {
+						try {
 
-							if (row.getCell(7).toString().toLowerCase().contains("j")) {
-								try {
-									challenge.setRepeatableAfterDays((int) (Double.parseDouble(row.getCell(8).toString())));
-								} catch (NumberFormatException e) {
-									// not repeatable
+							Challenge challenge = challengeService.getImportedChallengeFromTitle(title);
+							if (challenge == null) {
+								challenge = new Challenge();
+							} else {
+								challengesToDelete.remove(challenge.getId());
+							}
+							challenge.setCategory(mapCategory(category));
+							if (challenge.getCategory() != null) {
+								challenge.setTitle(title);
+								challenge.setDescription(row.getCell(3).toString());
+								challenge.setKind(mapChallengeKind(row.getCell(4).toString()));
+
+								if (row.getCell(7).toString().toLowerCase().contains("j")) {
+									try {
+										challenge.setRepeatableAfterDays((int) (Double.parseDouble(row.getCell(8).toString())));
+									} catch (NumberFormatException e) {
+										// not repeatable
+									}
 								}
-							}
-							challenge.setMaterial(mapMaterial(row.getCell(9).toString(), row.getCell(10).toString()));
+								challenge.setMaterial(mapMaterial(row.getCell(9).toString(), row.getCell(10).toString()));
 
-							String duration = row.getCell(2).toString();
-							if (!Strings.isNullOrEmpty(duration)) {
-								try {
-									challenge.setDurationSeconds((long) (Double.parseDouble(duration) * 60));
-								} catch (NumberFormatException e) { // "as long as possible"
-									challenge.setDurationSeconds(-1l);
+								String duration = row.getCell(2).toString();
+								if (!Strings.isNullOrEmpty(duration)) {
+									try {
+										challenge.setDurationSeconds((long) (Double.parseDouble(duration) * 60));
+									} catch (NumberFormatException e) { // "as long as possible"
+										challenge.setDurationSeconds(-1l);
+									}
 								}
+
+								String points = row.getCell(13).toString();
+								if (!Strings.isNullOrEmpty(points)) {
+									challenge.setPointsWin((int) Double.parseDouble(points));
+								}
+
+								points = row.getCell(14).toString();
+								if (!Strings.isNullOrEmpty(points)) {
+									challenge.setPointsLoose((int) Double.parseDouble(points));
+								}
+
+								points = row.getCell(15).toString();
+								if (!Strings.isNullOrEmpty(points)) {
+									challenge.setPointsParticipation((int) Double.parseDouble(points));
+								}
+
+								challenge.setAddToTreasureChest(row.getCell(16).toString().toLowerCase().contains("j"));
+								challenge.setCreatedByImport(true);
+
+								challengeService.createChallenge(user, challenge);
+								logger.info("Created challenge {}.", challenge.getId());
+							} else {
+								logger.warn("Category '{}' not found or title '{}' empty, skipping import.", category, title);
 							}
-
-							String points = row.getCell(13).toString();
-							if (!Strings.isNullOrEmpty(points)) {
-								challenge.setPointsWin((int) Double.parseDouble(points));
-							}
-
-							points = row.getCell(14).toString();
-							if (!Strings.isNullOrEmpty(points)) {
-								challenge.setPointsLoose((int) Double.parseDouble(points));
-							}
-
-							points = row.getCell(15).toString();
-							if (!Strings.isNullOrEmpty(points)) {
-								challenge.setPointsParticipation((int) Double.parseDouble(points));
-							}
-
-							challenge.setAddToTreasureChest(row.getCell(16).toString().toLowerCase().contains("j"));
-							challenge.setCreatedByImport(true);
-
-							challengeService.createChallenge(user, challenge);
-							logger.info("Created challenge {}.", challenge.getId());
-						} else {
-							logger.warn("Category {} not found, skipping import.", category);
+						} catch (Exception e) {
+							logger.error("Row: {}, Title: '{}', Error:", rowIndex, title, e);
 						}
 					}
+
+				}
+
+				logger.info("Deleting previously imported challenges, which are not in the file anymore.");
+				for (Long id : challengesToDelete) {
+					challengeService.deleteChallenge(id);
 				}
 			}
 

@@ -28,6 +28,10 @@ public class ChallengeService {
 	@Autowired
 	private TimerService timerService;
 
+	public void deleteChallenge(long challengeId) {
+		challengeRepository.deleteChallenge(challengeId);
+	}
+
 	public void deleteImportedChallenges() {
 		challengeRepository.deleteImportedChallenges();
 	}
@@ -46,6 +50,14 @@ public class ChallengeService {
 
 	public Challenge getRandomChallenge(Category category) {
 		return challengeRepository.getRandomChallenge(category.toString());
+	}
+
+	public List<Challenge> getImportedChallenges() {
+		return challengeRepository.getImportedChallenges();
+	}
+
+	public Challenge getImportedChallengeFromTitle(String title) {
+		return challengeRepository.getImportedChallengeFromTitle(title);
 	}
 
 	public Slice<Challenge> getChallengesForStream(Category category, User user, Pageable pageable) {
@@ -95,6 +107,10 @@ public class ChallengeService {
 
 	public Challenge getChallengeFromId(long challengeId) {
 		return challengeRepository.getChallengeFromId(challengeId);
+	}
+
+	public void save(Challenge challenge) {
+		challengeRepository.saveAndFlush(challenge);
 	}
 
 	public void save(ChallengeResult challengeResult) {

@@ -1,16 +1,18 @@
 package de.challengeme.backend.validation;
 
+import java.util.regex.Pattern;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import org.owasp.html.HtmlPolicyBuilder;
-import org.owasp.html.PolicyFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class NoHtmlValidator implements ConstraintValidator<NoHtml, String> {
 
-	// http://owasp-java-html-sanitizer.googlecode.com/svn/trunk/distrib/javadoc/org/owasp/html/HtmlPolicyBuilder.html
-	// builder is not thread safe, so make local
-	private static final PolicyFactory DISALLOW_ALL = new HtmlPolicyBuilder().toFactory();
+	private static final Logger logger = LogManager.getLogger();
+	private static final String HTML_PATTERN = "<(\"[^\"]*\"|'[^']*'|[^'\">])*>";
+	private static final Pattern pattern = Pattern.compile(HTML_PATTERN);
 
 	@Override
 	public void initialize(NoHtml constraintAnnotation) {
@@ -19,7 +21,11 @@ public class NoHtmlValidator implements ConstraintValidator<NoHtml, String> {
 	@Override
 	public boolean isValid(String value, ConstraintValidatorContext context) {
 		if (value != null) {
-			return DISALLOW_ALL.sanitize(value).equals(value);
+			boolean result = !pattern.matcher(value).find();
+			if (!result) {
+				logger.info("Validation failed because string contains HTML: '{}'.", value);
+			}
+			return result;
 		}
 
 		return true;

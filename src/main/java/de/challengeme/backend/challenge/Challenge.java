@@ -42,9 +42,9 @@ public class Challenge {
 	private String createdByUserName;
 
 	@NotNull
-	@Size(min = 5, max = 255)
+	@Size(min = 2, max = 255)
 	@NoHtml
-	@ApiModelProperty(required = true, allowEmptyValue = false, allowableValues = "5-255 characters, no HTML", example = "This is a demonstration challenge.")
+	@ApiModelProperty(required = true, allowEmptyValue = false, allowableValues = "2-255 characters, no HTML", example = "This is a demonstration challenge.")
 	private String title;
 
 	@NotNull
@@ -54,8 +54,9 @@ public class Challenge {
 	@ApiModelProperty(required = true, allowEmptyValue = false, allowableValues = "10-2048 characters, no HTML", example = "This is a demonstration challenge.")
 	private String description;
 
-	@Min(10)
-	@ApiModelProperty(required = false, allowableValues = "range[10,ininity]")
+	@Nullable
+	//@Min(10)  
+	@ApiModelProperty(required = false, allowableValues = "null, -1 (negative value means as long as possible), range[10,ininity] (bounds are not checked yet but duration < 10 makes no sense)")
 	private Long durationSeconds;
 
 	@NotNull
@@ -81,14 +82,14 @@ public class Challenge {
 
 	@Nullable
 	@Min(1)
-	@ApiModelProperty(required = false, allowableValues = "range[1,infinity]")
+	@ApiModelProperty(required = false, allowableValues = "null, range[1,infinity]")
 	private Integer repeatableAfterDays;
 
 	@Nullable
-	@Size(min = 1, max = 255)
+	@Size(min = 0, max = 255)
 	@NoHtml
 	@Column(columnDefinition = "VARCHAR(255)")
-	@ApiModelProperty(required = false, allowEmptyValue = true, allowableValues = "10-255 characters, no HTML", example = "scissor,knife")
+	@ApiModelProperty(required = false, allowEmptyValue = true, allowableValues = "null, 0-255 characters, no HTML", example = "scissor,knife")
 	private String material;
 
 	@Min(0)
