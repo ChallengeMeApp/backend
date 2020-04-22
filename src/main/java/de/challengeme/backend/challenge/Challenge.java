@@ -102,11 +102,6 @@ public class Challenge {
 	@ApiModelProperty(required = false, allowableValues = "range[0,100]")
 	private int pointsLoose;
 
-	@Min(0)
-	@Max(100)
-	@ApiModelProperty(required = false, allowableValues = "range[0,100]")
-	private int pointsParticipation;
-
 	@ApiModelProperty(required = false, example = "false")
 	private boolean addToTreasureChest;
 
@@ -121,12 +116,6 @@ public class Challenge {
 	}
 	public void setPointsLoose(int pointsLoose) {
 		this.pointsLoose = pointsLoose;
-	}
-	public int getPointsParticipation() {
-		return pointsParticipation;
-	}
-	public void setPointsParticipation(int pointsParticipation) {
-		this.pointsParticipation = pointsParticipation;
 	}
 	public boolean isAddToTreasureChest() {
 		return addToTreasureChest;

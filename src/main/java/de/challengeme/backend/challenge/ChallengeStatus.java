@@ -10,12 +10,18 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "challengeresults", indexes = {@Index(name = "userIndex", columnList = "userId", unique = false), @Index(name = "challengeIndex", columnList = "challengeId", unique = false)})
-public class ChallengeResult {
+@Table(name = "challengestatus", indexes = {@Index(name = "userIndex", columnList = "userId", unique = false), @Index(name = "challengeIndex", columnList = "challengeId", unique = false)})
+public class ChallengeStatus {
+
+	public enum State {
+		ongoing, finished_success, finished_failure
+	}
+
 	private long id;
 	private long userId;
 	private long challengeId;
-	private boolean success;
+
+	private State state;
 	private Instant timeStamp;
 
 	@Id
@@ -39,11 +45,12 @@ public class ChallengeResult {
 	public void setChallengeId(long challengeId) {
 		this.challengeId = challengeId;
 	}
-	public boolean isSuccess() {
-		return success;
+
+	public State getState() {
+		return state;
 	}
-	public void setSuccess(boolean success) {
-		this.success = success;
+	public void setState(State state) {
+		this.state = state;
 	}
 	public Instant getTimeStamp() {
 		return timeStamp;

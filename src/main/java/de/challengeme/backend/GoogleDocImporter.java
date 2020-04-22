@@ -95,20 +95,27 @@ public class GoogleDocImporter {
 									}
 								}
 
-								String points = row.getCell(13).toString();
+								int pointsWin = 0;
+								int pointsLoose = 0;
+
+								String points = row.getCell(15).toString();
 								if (!Strings.isNullOrEmpty(points)) {
-									challenge.setPointsWin((int) Double.parseDouble(points));
+									pointsWin = (int) Double.parseDouble(points);
+									pointsLoose = pointsWin;
+								}
+
+								points = row.getCell(13).toString();
+								if (!Strings.isNullOrEmpty(points)) {
+									pointsWin += (int) Double.parseDouble(points);
 								}
 
 								points = row.getCell(14).toString();
 								if (!Strings.isNullOrEmpty(points)) {
-									challenge.setPointsLoose((int) Double.parseDouble(points));
+									pointsLoose += (int) Double.parseDouble(points);
 								}
 
-								points = row.getCell(15).toString();
-								if (!Strings.isNullOrEmpty(points)) {
-									challenge.setPointsParticipation((int) Double.parseDouble(points));
-								}
+								challenge.setPointsWin(pointsWin);
+								challenge.setPointsLoose(pointsLoose);
 
 								challenge.setAddToTreasureChest(row.getCell(16).toString().toLowerCase().contains("j"));
 								challenge.setCreatedByImport(true);

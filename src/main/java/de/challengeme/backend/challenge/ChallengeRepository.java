@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 
-	@Query(value = "SELECT * FROM challenges WHERE deleted_at IS NULL AND kind = 'self' AND created_by_import = true AND category = :category AND id NOT IN(SELECT challenge_id FROM challengeresults WHERE user_id=:userId) ORDER BY rand() LIMIT 1", nativeQuery = true)
+	@Query(value = "SELECT * FROM challenges WHERE deleted_at IS NULL AND kind = 'self' AND created_by_import = true AND category = :category AND id NOT IN(SELECT challenge_id FROM challengestatus WHERE user_id = :userId AND state != 0) ORDER BY rand() LIMIT 1", nativeQuery = true)
 	public Challenge getRandomChallenge(String category, long userId);
 
 	@Query(value = "SELECT * FROM challenges WHERE deleted_at IS NULL AND kind = 'self' AND created_by_import = true AND category = :category ORDER BY rand() LIMIT 1", nativeQuery = true)
@@ -48,9 +48,9 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 	// @formatter:off
 	@Query(value = 
 			"	SELECT *, (successes / (successes + failures)) as successFailureRatio FROM (" + 
-			"	 SELECT c.*, SUM(case when cr.success = 1 then 1 else 0 end) as successes, SUM(case when cr.success = 0 then 1 else 0 end) as failures FROM challenges AS c" + 
-			"	 LEFT JOIN challengeresults AS cr ON cr.challenge_id = c.id" + 
-			"    WHERE c.deleted_at IS NULL AND c.kind = 'self' AND c.created_by_import AND (:category IS NULL OR c.category = :category) AND (c.repeatable_after_days IS NOT NULL OR c.id NOT IN (SELECT challenge_id FROM challengeresults WHERE user_id=:userId)" +
+			"	 SELECT c.*, SUM(case when cs.state = 1 then 1 else 0 end) as successes, SUM(case when cs.state = 2 then 1 else 0 end) as failures FROM challenges AS c" + 
+			"	 LEFT JOIN challengestatus AS cs ON cs.challenge_id = c.id" + 
+			"    WHERE c.deleted_at IS NULL AND c.kind = 'self' AND c.created_by_import AND (:category IS NULL OR c.category = :category) AND (c.repeatable_after_days IS NOT NULL OR c.id NOT IN (SELECT challenge_id FROM challengestatus WHERE user_id = :userId AND state != 0)" +
 			"   )" + 
 			"	GROUP by c.id) as i" + 
 			"	ORDER BY successFailureRatio DESC", nativeQuery = true)

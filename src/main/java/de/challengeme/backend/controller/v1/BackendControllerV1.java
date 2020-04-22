@@ -25,8 +25,9 @@ import com.google.common.base.Objects;
 import de.challengeme.backend.DefaultResponse;
 import de.challengeme.backend.challenge.Category;
 import de.challengeme.backend.challenge.Challenge;
-import de.challengeme.backend.challenge.ChallengeResult;
 import de.challengeme.backend.challenge.ChallengeService;
+import de.challengeme.backend.challenge.ChallengeStatus;
+import de.challengeme.backend.challenge.ChallengeStatus.State;
 import de.challengeme.backend.user.User;
 import de.challengeme.backend.user.UserService;
 import io.swagger.annotations.Api;
@@ -36,7 +37,7 @@ import io.swagger.annotations.ApiResponses;
 
 @RestController
 @RequestMapping("/api/v1")
-@Api(value = "API for the prototype App.", description = "API for the app.", tags = {"Backend Version 1"})
+@Api(value = "API for the app.", description = "API for the app.", tags = {"Backend Version 1"})
 @CrossOrigin
 public class BackendControllerV1 {
 
@@ -158,9 +159,9 @@ public class BackendControllerV1 {
 		challenge.setCreatedByUserName(userService.getUserNameFromId(challenge.getCreatedByUserId()));
 	}
 
-	@PostMapping("/users/{userId}/challenge_result/{challengeId}")
-	@ApiOperation(value = "Stores a challenge result (success/failure).", response = DefaultResponse.class)
-	public Object setChallengeResult(@PathVariable String userId, @PathVariable Long challengeId, @RequestParam boolean success) {
+	@PostMapping("/users/{userId}/challenge_status/{challengeId}")
+	@ApiOperation(value = "This interface is called whenever a user is starting or finishing a challenge.", response = DefaultResponse.class)
+	public Object setChallengeResult(@PathVariable String userId, @PathVariable Long challengeId, @RequestParam State state) {
 
 		User user = userService.getUserByUserId(userId);
 		if (user == null) {
@@ -172,11 +173,11 @@ public class BackendControllerV1 {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Challenge not found.");
 		}
 
-		ChallengeResult challengeResult = new ChallengeResult();
+		ChallengeStatus challengeResult = new ChallengeStatus();
 		challengeResult.setUserId(user.getId());
 		challengeResult.setChallengeId(challenge.getId());
 		challengeResult.setTimeStamp(Instant.now());
-		challengeResult.setSuccess(success);
+		challengeResult.setState(state);
 
 		challengeService.save(challengeResult);
 

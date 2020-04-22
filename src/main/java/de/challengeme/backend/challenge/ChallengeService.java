@@ -23,7 +23,7 @@ public class ChallengeService {
 	private ChallengeRepository challengeRepository;
 
 	@Autowired
-	private ChallengeResultRepository challengeResultRepository;
+	private ChallengeStatusRepository challengeResultRepository;
 
 	@Autowired
 	private TimerService timerService;
@@ -113,7 +113,7 @@ public class ChallengeService {
 		challengeRepository.saveAndFlush(challenge);
 	}
 
-	public void save(ChallengeResult challengeResult) {
+	public void save(ChallengeStatus challengeResult) {
 		challengeResultRepository.saveAndFlush(challengeResult);
 	}
 }
