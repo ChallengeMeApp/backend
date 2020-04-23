@@ -47,6 +47,10 @@ public class Challenge {
 	@ApiModelProperty(required = true, allowEmptyValue = false, allowableValues = "2-255 characters, no HTML", example = "This is a demonstration challenge.")
 	private String title;
 
+	@Column(columnDefinition = "VARCHAR(255)")
+	@ApiModelProperty(required = false, notes = "field is read-only, it contains the URL of the image to be displayed")
+	private String imageUrl;
+
 	@NotNull
 	@NoHtml
 	@Column(columnDefinition = "VARCHAR(2048)")
@@ -204,6 +208,12 @@ public class Challenge {
 	}
 	public void setCreatedByUserName(String createdByUserName) {
 		this.createdByUserName = createdByUserName;
+	}
+	public String getImageUrl() {
+		return imageUrl;
+	}
+	public void setImageUrl(String pictureUrl) {
+		this.imageUrl = pictureUrl;
 	}
 
 }

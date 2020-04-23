@@ -26,6 +26,12 @@ public class ChallengeService {
 	private ChallengeStatusRepository challengeResultRepository;
 
 	@Autowired
+	private IgnoredChallengesRepository ignoredChallengesRepository;
+
+	@Autowired
+	private MarkedChallengesRepository markedChallengesRepository;
+
+	@Autowired
 	private TimerService timerService;
 
 	public void deleteChallenge(long challengeId) {
@@ -42,6 +48,22 @@ public class ChallengeService {
 
 	public Slice<Challenge> getChallengesCreatedByUser(User user, Pageable pageable) {
 		return challengeRepository.getChallengesCreatedByUser(user.getId(), pageable);
+	}
+
+	public Slice<Challenge> getChallengesIgnoredByUser(User user, Pageable pageable) {
+		return challengeRepository.getChallengesIgnoredByUser(user.getId(), pageable);
+	}
+
+	public Slice<Challenge> getChallengesMarkedByUser(User user, Pageable pageable) {
+		return challengeRepository.getChallengesMarkedByUser(user.getId(), pageable);
+	}
+
+	public Slice<OnGoingChallenge> getChallengesOngoingByUser(User user, Pageable pageable) {
+		return challengeRepository.getChallengesOngoingByUser(user.getId(), pageable);
+	}
+
+	public Slice<DoneChallenge> getChallengesDoneByUser(User user, Pageable pageable) {
+		return challengeRepository.getChallengesDoneByUser(user.getId(), pageable);
 	}
 
 	public Challenge getRandomChallenge(Category category, User user) {
@@ -115,5 +137,29 @@ public class ChallengeService {
 
 	public void save(ChallengeStatus challengeResult) {
 		challengeResultRepository.saveAndFlush(challengeResult);
+	}
+
+	public void setChallengeIgnoredByUser(User user, Challenge challenge, boolean ignored) {
+		ignoredChallengesRepository.delete(user.getId(), challenge.getId());
+
+		if (ignored) {
+			IgnoredChallenge ignoredChallenge = new IgnoredChallenge();
+			ignoredChallenge.setUserId(user.getId());
+			ignoredChallenge.setChallengeId(challenge.getId());
+			ignoredChallenge.setTimeStamp(Instant.now());
+			ignoredChallengesRepository.saveAndFlush(ignoredChallenge);
+		}
+	}
+
+	public void setChallengeMarkedByUser(User user, Challenge challenge, boolean marked) {
+		markedChallengesRepository.delete(user.getId(), challenge.getId());
+
+		if (marked) {
+			MarkedChallenge markedChallenge = new MarkedChallenge();
+			markedChallenge.setUserId(user.getId());
+			markedChallenge.setChallengeId(challenge.getId());
+			markedChallenge.setTimeStamp(Instant.now());
+			markedChallengesRepository.saveAndFlush(markedChallenge);
+		}
 	}
 }

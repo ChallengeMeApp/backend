@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 
 import de.challengeme.backend.DefaultResponse;
 import de.challengeme.backend.challenge.Category;
@@ -28,6 +29,8 @@ import de.challengeme.backend.challenge.Challenge;
 import de.challengeme.backend.challenge.ChallengeService;
 import de.challengeme.backend.challenge.ChallengeStatus;
 import de.challengeme.backend.challenge.ChallengeStatus.State;
+import de.challengeme.backend.challenge.DoneChallenge;
+import de.challengeme.backend.challenge.OnGoingChallenge;
 import de.challengeme.backend.user.User;
 import de.challengeme.backend.user.UserService;
 import io.swagger.annotations.Api;
@@ -73,6 +76,10 @@ public class BackendControllerV1 {
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 			}
 
+			if ("Guest".equals(userToSave.getUserName())) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nice try.");
+			}
+
 			// check if user name is already in use
 			if (user.getUserName() != null) {
 				User check = userService.getUserByUserName(user.getUserName());
@@ -98,6 +105,12 @@ public class BackendControllerV1 {
 		return userToSave;
 	}
 
+	@GetMapping("/guest")
+	@ApiOperation(value = "Fetches a test-user for testing the API on this webseite.", response = User.class)
+	public Object getGuest() {
+		return userService.getUserByUserName("Guest");
+	}
+
 	@GetMapping("/users/{userId}")
 	@ApiOperation(value = "Gets a user object for the given userId.", response = User.class)
 	public Object getUser(@PathVariable String userId) {
@@ -115,7 +128,7 @@ public class BackendControllerV1 {
 		if (result == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Challenge not found.");
 		}
-		enrichCreatedByUserName(result);
+		enrichChallenge(result);
 		return result;
 	}
 
@@ -123,7 +136,7 @@ public class BackendControllerV1 {
 	@ApiOperation(value = "Returns the daily challenge.", response = Challenge.class)
 	public Challenge getDailyChallenge() {
 		Challenge result = challengeService.getDailyChallenge();
-		enrichCreatedByUserName(result);
+		enrichChallenge(result);
 		return result;
 	}
 
@@ -137,7 +150,7 @@ public class BackendControllerV1 {
 
 		Slice<Challenge> resultSlice = challengeService.getChallengesForStream(category, user, PageRequest.of(pageIndex, pageSize));
 		List<Challenge> result = resultSlice.getContent();
-		enrichCreatedByUserName(result);
+		enrichChallenge(result);
 		return result;
 	}
 
@@ -145,9 +158,9 @@ public class BackendControllerV1 {
 	 * Workaround function for @Formula not working in Hibernate for 7 years. It is advertised to work in the next
 	 * version.
 	 */
-	private void enrichCreatedByUserName(List<Challenge> challenges) {
+	private void enrichChallenge(List<? extends Challenge> challenges) {
 		for (Challenge challenge : challenges) {
-			enrichCreatedByUserName(challenge);
+			enrichChallenge(challenge);
 		}
 	}
 
@@ -155,7 +168,10 @@ public class BackendControllerV1 {
 	 * Workaround function for @Formula not working in Hibernate for 7 years. It is advertised to work in the next
 	 * version.
 	 */
-	private void enrichCreatedByUserName(Challenge challenge) {
+	private void enrichChallenge(Challenge challenge) {
+		if (!Strings.isNullOrEmpty(challenge.getImageUrl())) {
+			challenge.setImageUrl("/images/" + challenge.getImageUrl());
+		}
 		challenge.setCreatedByUserName(userService.getUserNameFromId(challenge.getCreatedByUserId()));
 	}
 
@@ -184,7 +200,97 @@ public class BackendControllerV1 {
 		return DefaultResponse.SUCCESS;
 	}
 
-	@GetMapping("/users/{userId}/own_challenges")
+	@GetMapping("/users/{userId}/ongoing_challenges")
+	@ApiOperation(value = "Gets all challenges, currently being done by the user.", response = Challenge.class, responseContainer = "List")
+	public Object getOngoingChallenges(@PathVariable String userId, @RequestParam(defaultValue = "0") Integer pageIndex, @RequestParam(defaultValue = "10") Integer pageSize) {
+		User user = userService.getUserByUserId(userId);
+		if (user == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
+		Slice<OnGoingChallenge> resultSlice = challengeService.getChallengesOngoingByUser(user, PageRequest.of(pageIndex, pageSize));
+		List<OnGoingChallenge> result = resultSlice.getContent();
+		enrichChallenge(result);
+		return result;
+	}
+
+	@GetMapping("/users/{userId}/done_challenges")
+	@ApiOperation(value = "Gets all challenges done by the user (successfuly or not).", response = DoneChallenge.class, responseContainer = "List")
+	public Object getDoneChallenges(@PathVariable String userId, @RequestParam(defaultValue = "0") Integer pageIndex, @RequestParam(defaultValue = "10") Integer pageSize) {
+		User user = userService.getUserByUserId(userId);
+		if (user == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
+		Slice<DoneChallenge> resultSlice = challengeService.getChallengesDoneByUser(user, PageRequest.of(pageIndex, pageSize));
+		List<DoneChallenge> result = resultSlice.getContent();
+		enrichChallenge(result);
+		return result;
+	}
+
+	@GetMapping("/users/{userId}/ignored_challenges")
+	@ApiOperation(value = "Gets all challenges, ignored by the user.", response = Challenge.class, responseContainer = "List")
+	public Object getIgnoredChallenges(@PathVariable String userId, @RequestParam(defaultValue = "0") Integer pageIndex, @RequestParam(defaultValue = "10") Integer pageSize) {
+		User user = userService.getUserByUserId(userId);
+		if (user == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
+		Slice<Challenge> resultSlice = challengeService.getChallengesIgnoredByUser(user, PageRequest.of(pageIndex, pageSize));
+		List<Challenge> result = resultSlice.getContent();
+		enrichChallenge(result);
+		return result;
+	}
+
+	@PostMapping("/users/{userId}/ignored_challenges/{challengeId}")
+	@ApiOperation(value = "Challenges set on ignore will no longer be displayed in the proposition streams.", response = DefaultResponse.class)
+	public Object setChallengeIgnoredByUser(@PathVariable String userId, @PathVariable Long challengeId, @RequestParam boolean ignored) {
+
+		User user = userService.getUserByUserId(userId);
+		if (user == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
+
+		Challenge challenge = challengeService.getChallengeFromId(challengeId);
+		if (challenge == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Challenge not found.");
+		}
+
+		challengeService.setChallengeIgnoredByUser(user, challenge, ignored);
+
+		return DefaultResponse.SUCCESS;
+	}
+
+	@GetMapping("/users/{userId}/marked_challenges")
+	@ApiOperation(value = "Gets all challenges, marked by the user (<3).", response = Challenge.class, responseContainer = "List")
+	public Object getMarkedChallenges(@PathVariable String userId, @RequestParam(defaultValue = "0") Integer pageIndex, @RequestParam(defaultValue = "10") Integer pageSize) {
+		User user = userService.getUserByUserId(userId);
+		if (user == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
+		Slice<Challenge> resultSlice = challengeService.getChallengesMarkedByUser(user, PageRequest.of(pageIndex, pageSize));
+		List<Challenge> result = resultSlice.getContent();
+		enrichChallenge(result);
+		return result;
+	}
+
+	@PostMapping("/users/{userId}/marked_challenges/{challengeId}")
+	@ApiOperation(value = "Adds or removes a challenge from the marked-challenges-list of a user.", response = DefaultResponse.class)
+	public Object setChallengeMarkedByUser(@PathVariable String userId, @PathVariable Long challengeId, @RequestParam boolean marked) {
+
+		User user = userService.getUserByUserId(userId);
+		if (user == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
+
+		Challenge challenge = challengeService.getChallengeFromId(challengeId);
+		if (challenge == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Challenge not found.");
+		}
+
+		challengeService.setChallengeMarkedByUser(user, challenge, marked);
+
+		return DefaultResponse.SUCCESS;
+	}
+
+	@GetMapping("/users/{userId}/created_challenges")
 	@ApiOperation(value = "Gets all challenges, created by the user.", response = Challenge.class, responseContainer = "List")
 	public Object getCreatedChallenges(@PathVariable String userId, @RequestParam(defaultValue = "0") Integer pageIndex, @RequestParam(defaultValue = "10") Integer pageSize) {
 		User user = userService.getUserByUserId(userId);
@@ -193,11 +299,11 @@ public class BackendControllerV1 {
 		}
 		Slice<Challenge> resultSlice = challengeService.getChallengesCreatedByUser(user, PageRequest.of(pageIndex, pageSize));
 		List<Challenge> result = resultSlice.getContent();
-		enrichCreatedByUserName(result);
+		enrichChallenge(result);
 		return result;
 	}
 
-	@PostMapping("/users/{userId}/own_challenges")
+	@PostMapping("/users/{userId}/created_challenges")
 	@ApiOperation(value = "Creates a new challenge.", response = Challenge.class)
 	@ApiResponses(value = {@ApiResponse(code = 400, response = Void.class, message = "Validation failed."), @ApiResponse(code = 404, message = "User not found by given user id.")})
 	public Object createChallenge(@PathVariable String userId, @RequestBody @Valid Challenge challenge) {
@@ -212,11 +318,11 @@ public class BackendControllerV1 {
 		// TODO: filter invalid challenges
 
 		challengeService.createChallenge(user, challenge);
-		enrichCreatedByUserName(challenge);
+		enrichChallenge(challenge);
 		return challenge;
 	}
 
-	@DeleteMapping("/users/{userId}/own_challenges/{challengeId}")
+	@DeleteMapping("/users/{userId}/created_challenges/{challengeId}")
 	@ApiOperation(value = "Removes the challenge with the corresponding id.", response = String.class)
 	public Object deleteChallenge(@PathVariable String userId, @PathVariable Long challengeId) {
 		User user = userService.getUserByUserId(userId);
@@ -225,7 +331,7 @@ public class BackendControllerV1 {
 		}
 
 		Challenge result = challengeService.markChallengeAsDeleted(user, challengeId);
-		enrichCreatedByUserName(result);
+		enrichChallenge(result);
 		return result;
 	}
 }

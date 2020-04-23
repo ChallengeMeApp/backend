@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 
-	@Query(value = "SELECT * FROM challenges WHERE deleted_at IS NULL AND kind = 'self' AND created_by_import = true AND category = :category AND id NOT IN(SELECT challenge_id FROM challengestatus WHERE user_id = :userId AND state != 0) ORDER BY rand() LIMIT 1", nativeQuery = true)
+	@Query(value = "SELECT * FROM challenges WHERE deleted_at IS NULL AND kind = 'self' AND created_by_import = true AND category = :category AND id NOT IN(SELECT challenge_id FROM challenge_status WHERE user_id = :userId AND state != 0) ORDER BY rand() LIMIT 1", nativeQuery = true)
 	public Challenge getRandomChallenge(String category, long userId);
 
 	@Query(value = "SELECT * FROM challenges WHERE deleted_at IS NULL AND kind = 'self' AND created_by_import = true AND category = :category ORDER BY rand() LIMIT 1", nativeQuery = true)
@@ -35,6 +35,51 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 	@Query(value = "SELECT * FROM challenges WHERE deleted_at IS NULL AND created_by_user_id=:userId ORDER BY created_at", nativeQuery = true)
 	public Slice<Challenge> getChallengesCreatedByUser(long userId, Pageable pageable);
 
+	// @formatter:off
+	@Query(value = " SELECT c.* FROM ignored_challenges as ic" + 
+	               " LEFT JOIN challenges AS c ON ic.challenge_id = c.id" +
+	               " WHERE c.deleted_at IS NULL AND ic.user_id = :userId" + 
+	               " ORDER BY time_stamp", nativeQuery = true)
+	public Slice<Challenge> getChallengesIgnoredByUser(long userId, Pageable pageable);
+	// @formatter:on
+
+	// @formatter:off
+	@Query(value = " SELECT c.* FROM marked_challenges as mc" + 
+	               " LEFT JOIN challenges AS c ON mc.challenge_id = c.id" +
+	               " WHERE c.deleted_at IS NULL AND mc.user_id = :userId" + 
+	               " ORDER BY time_stamp", nativeQuery = true)
+	public Slice<Challenge> getChallengesMarkedByUser(long userId, Pageable pageable);
+	// @formatter:on
+
+	// @formatter:off
+	@Query(value = 	" SELECT c.*, cs.time_stamp started_at FROM challenges AS c" + 
+					" RIGHT JOIN (" +
+					"              SELECT challenge_id, time_stamp FROM (" + 
+					"	                 SELECT challenge_id, state, row_number() OVER (PARTITION BY challenge_id ORDER BY time_stamp DESC) as row_num, time_stamp " +
+					"                     FROM challenge_status" + 
+					"                     WHERE user_id = :userId" +
+					"              ) as i" + 
+					"              WHERE row_num = 1 AND state = 0 " +
+					"       ) AS cs" +
+					" ON cs.challenge_id = c.id" +
+					" WHERE c.deleted_at IS NULL" +
+					" ORDER BY cs.time_stamp", nativeQuery = true)
+	public Slice<OnGoingChallenge> getChallengesOngoingByUser(long userId, Pageable pageable);
+	// @formatter:on
+
+	// @formatter:off
+	@Query(value = 	" SELECT c.*, cs.time_stamp done_at FROM challenges AS c" + 
+					" RIGHT JOIN (" + 
+					"	                 SELECT challenge_id, time_stamp " +
+					"                    FROM challenge_status" + 
+					"                    WHERE user_id = :userId AND state != 0" +
+					"            ) AS cs" +
+					" ON cs.challenge_id = c.id" +
+					" WHERE c.deleted_at IS NULL" +
+					" ORDER BY cs.time_stamp", nativeQuery = true)
+	public Slice<DoneChallenge> getChallengesDoneByUser(long userId, Pageable pageable);
+	// @formatter:on
+
 	@Modifying
 	@Transactional
 	@Query(value = "DELETE FROM challenges WHERE id = :challengeId", nativeQuery = true)
@@ -49,11 +94,13 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 	@Query(value = 
 			"	SELECT *, (successes / (successes + failures)) as successFailureRatio FROM (" + 
 			"	 SELECT c.*, SUM(case when cs.state = 1 then 1 else 0 end) as successes, SUM(case when cs.state = 2 then 1 else 0 end) as failures FROM challenges AS c" + 
-			"	 LEFT JOIN challengestatus AS cs ON cs.challenge_id = c.id" + 
-			"    WHERE c.deleted_at IS NULL AND c.kind = 'self' AND c.created_by_import AND (:category IS NULL OR c.category = :category) AND (c.repeatable_after_days IS NOT NULL OR c.id NOT IN (SELECT challenge_id FROM challengestatus WHERE user_id = :userId AND state != 0)" +
-			"   )" + 
-			"	GROUP by c.id) as i" + 
-			"	ORDER BY successFailureRatio DESC", nativeQuery = true)
+			"	 LEFT JOIN challenge_status AS cs ON cs.challenge_id = c.id" + 
+			"    WHERE c.deleted_at IS NULL AND c.kind = 'self' AND c.created_by_import AND (:category IS NULL OR c.category = :category) AND" +
+			"          (c.repeatable_after_days IS NOT NULL OR c.id NOT IN (SELECT challenge_id FROM challenge_status WHERE user_id = :userId AND state != 0)) AND" +
+			"          c.id NOT IN (SELECT challenge_id FROM ignored_challenges WHERE user_id = :userId)" +
+			"    GROUP by c.id"+
+			"  ) as i" + 
+			"  ORDER BY successFailureRatio DESC", nativeQuery = true)
 	public Slice<Challenge> getChallengesForStream(String category, long userId, Pageable pageable);
 	// @formatter:on
 }
