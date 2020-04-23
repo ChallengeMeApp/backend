@@ -7,7 +7,7 @@ CREATE TABLE `challenge_status` (
   PRIMARY KEY (`id`),
   KEY `userIndex` (`user_id`),
   KEY `challengeIndex` (`challenge_id`)
-)
+);
 
 CREATE TABLE `challenges` (
   `id` bigint NOT NULL AUTO_INCREMENT,
@@ -23,7 +23,6 @@ CREATE TABLE `challenges` (
   `kind` varchar(16) DEFAULT NULL,
   `material` varchar(255) DEFAULT NULL,
   `points_loose` int NOT NULL,
-  `points_participation` int NOT NULL,
   `points_win` int NOT NULL,
   `repeatable_after_days` int DEFAULT NULL,
   `title` varchar(255) DEFAULT NULL,
@@ -31,7 +30,7 @@ CREATE TABLE `challenges` (
   PRIMARY KEY (`id`),
   KEY `challengeCategoryIndex` (`category`),
   KEY `challengeCreatedByUserIdIndex` (`created_by_user_id`)
-)
+);
 
 CREATE TABLE `ignored_challenges` (
   `id` bigint NOT NULL AUTO_INCREMENT,
@@ -41,7 +40,7 @@ CREATE TABLE `ignored_challenges` (
   PRIMARY KEY (`id`),
   KEY `userIndex` (`user_id`),
   KEY `challengeIndex` (`challenge_id`)
-)
+);
 
 CREATE TABLE `marked_challenges` (
   `id` bigint NOT NULL AUTO_INCREMENT,
@@ -51,7 +50,7 @@ CREATE TABLE `marked_challenges` (
   PRIMARY KEY (`id`),
   KEY `userIndex` (`user_id`),
   KEY `challengeIndex` (`challenge_id`)
-)
+);
 
 CREATE TABLE `timer` (
   `id` bigint NOT NULL,
@@ -60,7 +59,7 @@ CREATE TABLE `timer` (
   `valid_until` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `timerTypeIndex` (`type`)
-)
+);
 
 CREATE TABLE `users` (
   `id` bigint NOT NULL AUTO_INCREMENT,
@@ -73,4 +72,4 @@ CREATE TABLE `users` (
   `user_name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `userUserIdIndex` (`user_id`)
-)
+);
