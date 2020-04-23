@@ -7,7 +7,7 @@ CREATE TABLE `challenge_status` (
   PRIMARY KEY (`id`),
   KEY `userIndex` (`user_id`),
   KEY `challengeIndex` (`challenge_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+)
 
 CREATE TABLE `challenges` (
   `id` bigint NOT NULL AUTO_INCREMENT,
@@ -31,7 +31,7 @@ CREATE TABLE `challenges` (
   PRIMARY KEY (`id`),
   KEY `challengeCategoryIndex` (`category`),
   KEY `challengeCreatedByUserIdIndex` (`created_by_user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2183 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+)
 
 CREATE TABLE `ignored_challenges` (
   `id` bigint NOT NULL AUTO_INCREMENT,
@@ -41,7 +41,7 @@ CREATE TABLE `ignored_challenges` (
   PRIMARY KEY (`id`),
   KEY `userIndex` (`user_id`),
   KEY `challengeIndex` (`challenge_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+)
 
 CREATE TABLE `marked_challenges` (
   `id` bigint NOT NULL AUTO_INCREMENT,
@@ -51,7 +51,7 @@ CREATE TABLE `marked_challenges` (
   PRIMARY KEY (`id`),
   KEY `userIndex` (`user_id`),
   KEY `challengeIndex` (`challenge_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+)
 
 CREATE TABLE `timer` (
   `id` bigint NOT NULL,
@@ -60,7 +60,7 @@ CREATE TABLE `timer` (
   `valid_until` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `timerTypeIndex` (`type`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+)
 
 CREATE TABLE `users` (
   `id` bigint NOT NULL AUTO_INCREMENT,
@@ -73,4 +73,4 @@ CREATE TABLE `users` (
   `user_name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `userUserIdIndex` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+)
