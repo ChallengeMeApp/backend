@@ -14,8 +14,11 @@ public class UserNameValidator implements ConstraintValidator<UserName, String> 
 		if (value != null) {
 			int len = value.length();
 			for (int i = 0; i < len; i++) {
-				if (!Character.isLetterOrDigit(value.charAt(i))) {
-					return false;
+				char c = value.charAt(i);
+				if (!Character.isLetterOrDigit(c)) {
+					if (c != ' ' || i == 0 || i == value.length() - 1) {
+						return false;
+					}
 				}
 			}
 		}

@@ -35,10 +35,10 @@ public class User {
 
 	@Nullable
 	@NoHtml
-	@UserName(message = "A valid userName consists of letters and characters.")
-	@Size(min = 3, max = 30, message = "userName must be between 3 and 30 characters")
+	@UserName(message = "A valid userName consists of words, containing letters and characters.")
+	@Size(min = 3, max = 30, message = "User names must be between 3 and 30 characters.")
 	@Column(columnDefinition = "VARCHAR(30)")
-	@ApiModelProperty(allowableValues = "3-20 alphanumeric characters (a-z,A-Z,0-9)", example = "Anonymous")
+	@ApiModelProperty(allowableValues = "3-30 alphanumeric characters (a-z,A-Z,0-9) and spaces inbetween", example = "Anonymous Bat")
 	private String userName;
 
 	@Nullable
