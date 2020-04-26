@@ -2,11 +2,13 @@ package de.challengeme.backend.challenge;
 
 import javax.persistence.Entity;
 
+import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Subselect;
 
 import io.swagger.annotations.ApiModelProperty;
 
 @Entity
+@Immutable
 @Subselect("SELECT 'ignoreme';")
 public class ChallengeWithStatus extends ChallengePrototype {
 
@@ -22,14 +24,6 @@ public class ChallengeWithStatus extends ChallengePrototype {
 
 	public boolean isMarked() {
 		return marked;
-	}
-
-	public void setOngoing(boolean ongoing) {
-		this.ongoing = ongoing;
-	}
-
-	public void setMarked(boolean marked) {
-		this.marked = marked;
 	}
 
 }

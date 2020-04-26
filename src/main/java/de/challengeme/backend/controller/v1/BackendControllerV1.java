@@ -33,6 +33,7 @@ import de.challengeme.backend.challenge.ChallengeStatus.State;
 import de.challengeme.backend.challenge.ChallengeWithStatus;
 import de.challengeme.backend.challenge.DoneChallenge;
 import de.challengeme.backend.challenge.OnGoingChallenge;
+import de.challengeme.backend.user.Points;
 import de.challengeme.backend.user.User;
 import de.challengeme.backend.user.UserService;
 import io.swagger.annotations.Api;
@@ -123,9 +124,19 @@ public class BackendControllerV1 {
 		return result;
 	}
 
+	@GetMapping("/users/{userId}/points")
+	@ApiOperation(value = "Gets the points of a user.", response = Points.class)
+	public Object getUserPoints(@PathVariable String userId) {
+		User user = userService.getUserByUserId(userId);
+		if (user == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
+		return userService.getUserPoints(user);
+	}
+
 	@GetMapping("/users/{userId}/challenge/{challengeId}")
-	@ApiOperation(value = "Returns a challenge for the corresponding challengeId.", response = Challenge.class)
-	public Object getChallengeById(@PathVariable String userId, @PathVariable long challengeId) {
+	@ApiOperation(value = "Returns a challenge for the corresponding challengeId.", response = ChallengeWithStatus.class)
+	public Object getChallengeWithStatusById(@PathVariable String userId, @PathVariable long challengeId) {
 		User user = userService.getUserByUserId(userId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");

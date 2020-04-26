@@ -4,11 +4,13 @@ import java.time.Instant;
 
 import javax.persistence.Entity;
 
+import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Subselect;
 
 import io.swagger.annotations.ApiModelProperty;
 
 @Entity
+@Immutable
 @Subselect("SELECT 'ignoreme';")
 public class OnGoingChallenge extends ChallengePrototype {
 
@@ -17,10 +19,6 @@ public class OnGoingChallenge extends ChallengePrototype {
 
 	public Instant getStartedAt() {
 		return startedAt;
-	}
-
-	public void setStartedAt(Instant startedAt) {
-		this.startedAt = startedAt;
 	}
 
 }
