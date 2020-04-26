@@ -5,9 +5,13 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Preconditions;
@@ -34,6 +38,9 @@ public class ChallengeService {
 	@Autowired
 	private TimerService timerService;
 
+	@Autowired
+	private EntityManager em;
+
 	public void deleteChallenge(long challengeId) {
 		challengeRepository.deleteChallenge(challengeId);
 	}
@@ -58,12 +65,49 @@ public class ChallengeService {
 		return challengeRepository.getChallengesMarkedByUser(user.getId(), pageable);
 	}
 
+	@SuppressWarnings("unchecked")
 	public Slice<OnGoingChallenge> getChallengesOngoingByUser(User user, Pageable pageable) {
-		return challengeRepository.getChallengesOngoingByUser(user.getId(), pageable);
+
+		// @formatter:off
+		Query query = em.createNativeQuery( 
+				" SELECT c.*, cs.time_stamp started_at FROM challenges AS c" + 
+				" RIGHT JOIN (" +
+				"              SELECT challenge_id, time_stamp FROM (" + 
+				"	                 SELECT challenge_id, state, row_number() OVER (PARTITION BY challenge_id ORDER BY time_stamp DESC) as row_num, time_stamp " +
+				"                     FROM challenge_status" + 
+				"                     WHERE user_id = :userId" +
+				"              ) as i" + 
+				"              WHERE row_num = 1 AND state = 0 " +
+				"       ) AS cs" +
+				" ON cs.challenge_id = c.id" +
+				" WHERE c.deleted_at IS NULL" +
+				" ORDER BY cs.time_stamp", OnGoingChallenge.class);
+		// @formatter:on
+
+		query.setParameter("userId", user.getId());
+
+		return new SliceImpl<>(query.getResultList(), pageable, true);
 	}
 
+	@SuppressWarnings("unchecked")
 	public Slice<DoneChallenge> getChallengesDoneByUser(User user, Pageable pageable) {
-		return challengeRepository.getChallengesDoneByUser(user.getId(), pageable);
+
+		// @formatter:off
+		Query query = em.createNativeQuery( 
+				" SELECT c.*, cs.time_stamp done_at FROM challenges AS c" + 
+				" RIGHT JOIN (" + 
+				"	                 SELECT challenge_id, time_stamp " +
+				"                    FROM challenge_status" + 
+				"                    WHERE user_id = :userId AND state != 0" +
+				"            ) AS cs" +
+				" ON cs.challenge_id = c.id" +
+				" WHERE c.deleted_at IS NULL" +
+				" ORDER BY cs.time_stamp", DoneChallenge.class);
+		// @formatter:on
+
+		query.setParameter("userId", user.getId());
+
+		return new SliceImpl<>(query.getResultList(), pageable, true);
 	}
 
 	public Challenge getRandomChallenge(Category category, User user) {
@@ -129,6 +173,25 @@ public class ChallengeService {
 
 	public Challenge getChallengeFromId(long challengeId) {
 		return challengeRepository.getChallengeFromId(challengeId);
+	}
+
+	public ChallengeWithStatus getChallengeWithStatusFromId(User user, long challengeId) {
+
+		// @formatter:off
+		Query query = em.createNativeQuery( " SELECT *, " +
+				       "        (SELECT COUNT(*) ongoing FROM marked_challenges WHERE user_id = :userId AND challenge_id = :challengeId) marked," +
+				       "        (CASE WHEN (SELECT state FROM challenge_status WHERE user_id = :userId AND challenge_id = :challengeId ORDER BY time_stamp DESC LIMIT 1) = 0 THEN 1 ELSE 0 END) ongoing" +
+				       " FROM challenges WHERE id = :challengeId", ChallengeWithStatus.class);
+		// @formatter:on
+
+		query.setParameter("userId", user.getId());
+		query.setParameter("challengeId", challengeId);
+
+		for (Object object : query.getResultList()) {
+			return (ChallengeWithStatus) object;
+		}
+
+		return null;
 	}
 
 	public void save(Challenge challenge) {

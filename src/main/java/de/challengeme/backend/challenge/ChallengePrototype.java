@@ -26,85 +26,85 @@ public class ChallengePrototype {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	protected long id;
 
 	@ApiModelProperty(required = false, notes = "field is read-only")
-	private long createdByUserId;
+	protected long createdByUserId;
 
 	// This is how it should be done but there is a bug in Hibernate for 7 years, which prevents it from working
 	//@Formula("(SELECT u.user_name FROM users u WHERE u.id = 1)")
 	@JsonInclude()
 	@Transient
 	@ApiModelProperty(required = false, notes = "field is read-only")
-	private String createdByUserName;
+	protected String createdByUserName;
 
 	@NotNull
 	@Size(min = 2, max = 255)
 	@NoHtml
 	@ApiModelProperty(required = true, allowEmptyValue = false, allowableValues = "2-255 characters, no HTML", example = "This is a demonstration challenge.")
-	private String title;
+	protected String title;
 
 	@Column(columnDefinition = "VARCHAR(255)")
 	@ApiModelProperty(required = false, notes = "field is read-only, it contains the URL of the image to be displayed")
-	private String imageUrl;
+	protected String imageUrl;
 
 	@NotNull
 	@NoHtml
 	@Column(columnDefinition = "VARCHAR(2048)")
 	@Size(min = 10, max = 2048)
 	@ApiModelProperty(required = true, allowEmptyValue = false, allowableValues = "10-2048 characters, no HTML", example = "This is a demonstration challenge.")
-	private String description;
+	protected String description;
 
 	@Nullable
 	//@Min(10)  
 	@ApiModelProperty(required = false, allowableValues = "null, -1 (negative value means as long as possible), range[10,ininity] (bounds are not checked yet but duration < 10 makes no sense)")
-	private Long durationSeconds;
+	protected Long durationSeconds;
 
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(columnDefinition = "VARCHAR(16)")
 	@ApiModelProperty(required = true, allowEmptyValue = false)
-	private Category category;
+	protected Category category;
 
 	@Nullable
 	@Enumerated(EnumType.STRING)
 	@Column(columnDefinition = "VARCHAR(16)")
 	@ApiModelProperty(required = false, allowEmptyValue = false)
-	private ChallengeKind kind;
+	protected ChallengeKind kind;
 
 	@ApiModelProperty(required = false, notes = "field is read-only")
-	private Instant createdAt;
+	protected Instant createdAt;
 
 	@ApiModelProperty(required = false, notes = "field is read-only")
-	private Instant deletedAt;
+	protected Instant deletedAt;
 
 	@ApiModelProperty(required = false, notes = "field is read-only")
-	private boolean createdByImport;
+	protected boolean createdByImport;
 
 	@Nullable
 	@Min(1)
 	@ApiModelProperty(required = false, allowableValues = "null, range[1,infinity]")
-	private Integer repeatableAfterDays;
+	protected Integer repeatableAfterDays;
 
 	@Nullable
 	@Size(min = 0, max = 255)
 	@NoHtml
 	@Column(columnDefinition = "VARCHAR(255)")
 	@ApiModelProperty(required = false, allowEmptyValue = true, allowableValues = "null, 0-255 characters, no HTML", example = "scissor,knife")
-	private String material;
+	protected String material;
 
 	@Min(0)
 	@Max(100)
 	@ApiModelProperty(required = false, allowableValues = "range[0,100]")
-	private int pointsWin;
+	protected int pointsWin;
 
 	@Min(0)
 	@Max(100)
 	@ApiModelProperty(required = false, allowableValues = "range[0,100]")
-	private int pointsLoose;
+	protected int pointsLoose;
 
 	@ApiModelProperty(required = false, example = "false")
-	private boolean addToTreasureChest;
+	protected boolean addToTreasureChest;
 
 	public int getPointsWin() {
 		return pointsWin;

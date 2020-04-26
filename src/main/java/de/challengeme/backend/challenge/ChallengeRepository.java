@@ -26,7 +26,7 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 	@Query(value = "SELECT * FROM challenges WHERE created_by_import = true", nativeQuery = true)
 	public List<Challenge> getImportedChallenges();
 
-	@Query(value = "SELECT * FROM challenges WHERE id = :id LIMIT 1", nativeQuery = true)
+	@Query(value = "SELECT * FROM challenges WHERE id = :id", nativeQuery = true)
 	public Challenge getChallengeFromId(long id);
 
 	@Query(value = "SELECT * FROM challenges WHERE deleted_at IS NULL AND created_by_user_id=:userId ORDER BY created_at", nativeQuery = true)
@@ -49,35 +49,6 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 	               " WHERE c.deleted_at IS NULL AND mc.user_id = :userId" + 
 	               " ORDER BY time_stamp", nativeQuery = true)
 	public Slice<Challenge> getChallengesMarkedByUser(long userId, Pageable pageable);
-	// @formatter:on
-
-	// @formatter:off
-	@Query(value = 	" SELECT c.*, cs.time_stamp started_at FROM challenges AS c" + 
-					" RIGHT JOIN (" +
-					"              SELECT challenge_id, time_stamp FROM (" + 
-					"	                 SELECT challenge_id, state, row_number() OVER (PARTITION BY challenge_id ORDER BY time_stamp DESC) as row_num, time_stamp " +
-					"                     FROM challenge_status" + 
-					"                     WHERE user_id = :userId" +
-					"              ) as i" + 
-					"              WHERE row_num = 1 AND state = 0 " +
-					"       ) AS cs" +
-					" ON cs.challenge_id = c.id" +
-					" WHERE c.deleted_at IS NULL" +
-					" ORDER BY cs.time_stamp", nativeQuery = true)
-	public Slice<OnGoingChallenge> getChallengesOngoingByUser(long userId, Pageable pageable);
-	// @formatter:on
-
-	// @formatter:off
-	@Query(value = 	" SELECT c.*, cs.time_stamp done_at FROM challenges AS c" + 
-					" RIGHT JOIN (" + 
-					"	                 SELECT challenge_id, time_stamp " +
-					"                    FROM challenge_status" + 
-					"                    WHERE user_id = :userId AND state != 0" +
-					"            ) AS cs" +
-					" ON cs.challenge_id = c.id" +
-					" WHERE c.deleted_at IS NULL" +
-					" ORDER BY cs.time_stamp", nativeQuery = true)
-	public Slice<DoneChallenge> getChallengesDoneByUser(long userId, Pageable pageable);
 	// @formatter:on
 
 	@Modifying

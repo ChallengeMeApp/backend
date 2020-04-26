@@ -30,6 +30,7 @@ import de.challengeme.backend.challenge.ChallengePrototype;
 import de.challengeme.backend.challenge.ChallengeService;
 import de.challengeme.backend.challenge.ChallengeStatus;
 import de.challengeme.backend.challenge.ChallengeStatus.State;
+import de.challengeme.backend.challenge.ChallengeWithStatus;
 import de.challengeme.backend.challenge.DoneChallenge;
 import de.challengeme.backend.challenge.OnGoingChallenge;
 import de.challengeme.backend.user.User;
@@ -122,10 +123,14 @@ public class BackendControllerV1 {
 		return result;
 	}
 
-	@GetMapping("/challenge/{challengeId}")
+	@GetMapping("/users/{userId}/challenge/{challengeId}")
 	@ApiOperation(value = "Returns a challenge for the corresponding challengeId.", response = Challenge.class)
-	public Object getChallengeById(@PathVariable long challengeId) {
-		Challenge result = challengeService.getChallengeFromId(challengeId);
+	public Object getChallengeById(@PathVariable String userId, @PathVariable long challengeId) {
+		User user = userService.getUserByUserId(userId);
+		if (user == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
+		ChallengeWithStatus result = challengeService.getChallengeWithStatusFromId(user, challengeId);
 		if (result == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Challenge not found.");
 		}

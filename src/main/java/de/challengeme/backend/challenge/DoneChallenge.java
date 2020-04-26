@@ -24,5 +24,4 @@ public class DoneChallenge extends ChallengePrototype {
 	public void setDoneAt(Instant doneAt) {
 		this.doneAt = doneAt;
 	}
-
 }
