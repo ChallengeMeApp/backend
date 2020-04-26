@@ -26,6 +26,7 @@ import com.google.common.base.Strings;
 import de.challengeme.backend.DefaultResponse;
 import de.challengeme.backend.challenge.Category;
 import de.challengeme.backend.challenge.Challenge;
+import de.challengeme.backend.challenge.ChallengePrototype;
 import de.challengeme.backend.challenge.ChallengeService;
 import de.challengeme.backend.challenge.ChallengeStatus;
 import de.challengeme.backend.challenge.ChallengeStatus.State;
@@ -158,8 +159,8 @@ public class BackendControllerV1 {
 	 * Workaround function for @Formula not working in Hibernate for 7 years. It is advertised to work in the next
 	 * version.
 	 */
-	private void enrichChallenge(List<? extends Challenge> challenges) {
-		for (Challenge challenge : challenges) {
+	private void enrichChallenge(List<? extends ChallengePrototype> challenges) {
+		for (ChallengePrototype challenge : challenges) {
 			enrichChallenge(challenge);
 		}
 	}
@@ -168,7 +169,7 @@ public class BackendControllerV1 {
 	 * Workaround function for @Formula not working in Hibernate for 7 years. It is advertised to work in the next
 	 * version.
 	 */
-	private void enrichChallenge(Challenge challenge) {
+	private void enrichChallenge(ChallengePrototype challenge) {
 		if (!Strings.isNullOrEmpty(challenge.getImageUrl())) {
 			challenge.setImageUrl("/images/" + challenge.getImageUrl());
 		}
