@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "questophant.image.directory",
+    "type": "java.lang.String",
+    "description": "The directory where image upload is going to.'"
+  },
+  {
+    "name": "questophant.image.url",
+    "type": "java.lang.String",
+    "description": "URL prefix to use for images."
+  }
+]}

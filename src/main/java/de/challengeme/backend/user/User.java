@@ -53,6 +53,10 @@ public class User {
 	@ApiModelProperty(allowableValues = "2-40 characters and no HTML", example = "Mues")
 	private String lastName;
 
+	@Column(columnDefinition = "VARCHAR(255)")
+	@ApiModelProperty(required = false, notes = "field is read-only, it contains the URL of the image to be displayed")
+	protected String imageUrl;
+
 	@Nullable
 	@ApiModelProperty(required = false, notes = "field is read-only")
 	private Instant createdAt;
@@ -113,6 +117,12 @@ public class User {
 	}
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+	public String getImageUrl() {
+		return imageUrl;
+	}
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 
 }

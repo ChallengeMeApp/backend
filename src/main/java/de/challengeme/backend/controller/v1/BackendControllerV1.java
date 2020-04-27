@@ -1,11 +1,21 @@
 package de.challengeme.backend.controller.v1;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
+import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
@@ -19,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
@@ -47,11 +58,25 @@ import io.swagger.annotations.ApiResponses;
 @CrossOrigin
 public class BackendControllerV1 {
 
+	private static final Logger logger = LogManager.getLogger();
+
 	@Autowired
 	private ChallengeService challengeService;
 
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private Environment env;
+
+	private Path imageFolderPath;
+	private String imageUrlPrefix;
+
+	@PostConstruct
+	public void initialize() {
+		imageFolderPath = Paths.get(env.getProperty("questophant.image.directory"));
+		imageUrlPrefix = env.getProperty("questophant.image.url");
+	}
 
 	@PostMapping("/users")
 	@ApiOperation(value = "Creates or edits a user depending on if a valid user-object with a valid userId is submitted. Returns the newly created or edited user.", response = User.class)
@@ -105,13 +130,46 @@ public class BackendControllerV1 {
 		}
 
 		userService.save(userToSave);
+
+		enrichUser(userToSave);
 		return userToSave;
+	}
+
+	@PostMapping("/users/{userId}/image")
+	@ApiOperation(value = "Sets the image of a user.", response = User.class)
+	public Object setUserImage(@PathVariable String userId, @RequestBody @Valid MultipartFile file) {
+		User user = userService.getUserByUserId(userId);
+		if (user == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
+
+		String fileName;
+
+		do {
+			fileName = UUID.randomUUID().toString();
+		} while (Files.exists(imageFolderPath.resolve(fileName)));
+
+		try (InputStream from = file.getInputStream()) {
+			Files.createDirectories(imageFolderPath);
+			Files.copy(from, imageFolderPath.resolve(fileName));
+		} catch (IOException e) {
+			logger.error("Could not save image.", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not save image.");
+		}
+
+		user.setImageUrl(fileName);
+		userService.save(user);
+
+		enrichUser(user);
+		return user;
 	}
 
 	@GetMapping("/guest")
 	@ApiOperation(value = "Fetches a test-user for testing the API on this webseite.", response = User.class)
 	public Object getGuest() {
-		return userService.getUserByUserName("Guest");
+		User user = userService.getUserByUserName("Guest");
+		enrichUser(user);
+		return user;
 	}
 
 	@GetMapping("/users/{userId}")
@@ -121,6 +179,7 @@ public class BackendControllerV1 {
 		if (result == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}
+		enrichUser(result);
 		return result;
 	}
 
@@ -171,25 +230,23 @@ public class BackendControllerV1 {
 		return result;
 	}
 
-	/**
-	 * Workaround function for @Formula not working in Hibernate for 7 years. It is advertised to work in the next
-	 * version.
-	 */
 	private void enrichChallenge(List<? extends ChallengePrototype> challenges) {
 		for (ChallengePrototype challenge : challenges) {
 			enrichChallenge(challenge);
 		}
 	}
 
-	/**
-	 * Workaround function for @Formula not working in Hibernate for 7 years. It is advertised to work in the next
-	 * version.
-	 */
 	private void enrichChallenge(ChallengePrototype challenge) {
 		if (!Strings.isNullOrEmpty(challenge.getImageUrl())) {
-			challenge.setImageUrl("/images/" + challenge.getImageUrl());
+			challenge.setImageUrl(imageUrlPrefix + challenge.getImageUrl());
 		}
 		challenge.setCreatedByUserName(userService.getUserNameFromId(challenge.getCreatedByUserId()));
+	}
+
+	private void enrichUser(User user) {
+		if (!Strings.isNullOrEmpty(user.getImageUrl())) {
+			user.setImageUrl(imageUrlPrefix + user.getImageUrl());
+		}
 	}
 
 	@PostMapping("/users/{userId}/challenge_status/{challengeId}")
@@ -332,7 +389,8 @@ public class BackendControllerV1 {
 		challenge.setId(0);
 		challenge.setDeletedAt(null);
 		challenge.setCreatedByImport(false);
-		// TODO: filter invalid challenges
+		challenge.setPointsLoose(0);
+		challenge.setPointsWin(10);
 
 		challengeService.createChallenge(user, challenge);
 		enrichChallenge(challenge);
@@ -340,7 +398,7 @@ public class BackendControllerV1 {
 	}
 
 	@DeleteMapping("/users/{userId}/created_challenges/{challengeId}")
-	@ApiOperation(value = "Removes the challenge with the corresponding id.", response = String.class)
+	@ApiOperation(value = "Removes the challenge with the corresponding id.", response = Challenge.class)
 	public Object deleteChallenge(@PathVariable String userId, @PathVariable Long challengeId) {
 		User user = userService.getUserByUserId(userId);
 		if (user == null) {
@@ -350,5 +408,39 @@ public class BackendControllerV1 {
 		Challenge result = challengeService.markChallengeAsDeleted(user, challengeId);
 		enrichChallenge(result);
 		return result;
+	}
+
+	@PostMapping("/users/{userId}/created_challenges/{challengeId}/image")
+	@ApiOperation(value = "Sets the image of a created challenge.", response = Challenge.class)
+	public Object setChallengeImage(@PathVariable String userId, @PathVariable Long challengeId, @RequestBody @Valid MultipartFile file) {
+		User user = userService.getUserByUserId(userId);
+		if (user == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
+
+		Challenge challenge = challengeService.getChallengeFromId(challengeId);
+		if (challenge.getCreatedByUserId() != user.getId()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not your challenge!");
+		}
+
+		String fileName;
+
+		do {
+			fileName = UUID.randomUUID().toString();
+		} while (Files.exists(imageFolderPath.resolve(fileName)));
+
+		try (InputStream from = file.getInputStream()) {
+			Files.createDirectories(imageFolderPath);
+			Files.copy(from, imageFolderPath.resolve(fileName));
+		} catch (IOException e) {
+			logger.error("Could not save image.", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not save image.");
+		}
+
+		challenge.setImageUrl(fileName);
+		challengeService.save(challenge);
+
+		enrichChallenge(challenge);
+		return challenge;
 	}
 }

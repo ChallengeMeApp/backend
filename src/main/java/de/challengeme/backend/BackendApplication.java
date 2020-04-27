@@ -8,14 +8,19 @@ import javax.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
 
 import com.google.common.base.Joiner;
 
 import de.challengeme.backend.user.User;
 import de.challengeme.backend.user.UserService;
 
+@ServletComponentScan
 @SpringBootApplication
 public class BackendApplication {
 
@@ -28,15 +33,38 @@ public class BackendApplication {
 	@Autowired
 	private GoogleDocImporter googleDocImporter;
 
+	@Autowired
+	AutowireCapableBeanFactory beanFactory;
+
 	public static void main(String[] args) {
 		arguments = Arrays.asList(args);
+		if (arguments != null) {
+			logger.info("Started with arguments: " + Joiner.on(',').join(arguments));
+		}
 		SpringApplication.run(BackendApplication.class, args);
+	}
+
+	protected boolean isInTestMode() {
+		return arguments == null; // is null when tests are run
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	@PostConstruct
+	@Bean
+	public ServletRegistrationBean initializeImageServlet() {
+		ServletRegistrationBean srb = new ServletRegistrationBean();
+		final ImageServlet servlet = new ImageServlet();
+		beanFactory.autowireBean(servlet); // <--- The most important part
+		servlet.initialize();
+		srb.setServlet(servlet);
+		srb.setUrlMappings(Arrays.asList("/img/*"));
+		srb.setLoadOnStartup(1);
+		return srb;
 	}
 
 	@PostConstruct
 	public void initializeDatabase() {
-		if (arguments != null) { // is null when tests are run
-			logger.info("Started with arguments: " + Joiner.on(',').join(arguments));
+		if (!isInTestMode()) {
 
 			// create root admin user
 			if (userService.getCountOfAdminUsers() == 0) {
