@@ -25,7 +25,7 @@ import de.challengeme.backend.challenge.Category;
 import de.challengeme.backend.challenge.Challenge;
 import de.challengeme.backend.challenge.ChallengeKind;
 import de.challengeme.backend.challenge.ChallengeService;
-import de.challengeme.backend.user.User;
+import de.challengeme.backend.user.MyUser;
 import de.challengeme.backend.user.UserService;
 
 @Configuration
@@ -41,7 +41,7 @@ public class GoogleDocImporter {
 
 	public void importChallenges(String excelFilePath) {
 
-		User user = userService.getRootUser();
+		MyUser user = userService.getRootUser();
 
 		try {
 

@@ -1,6 +1,7 @@
 package de.challengeme.backend.challenge;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 import javax.persistence.Column;
@@ -29,7 +30,8 @@ public class ChallengePrototype {
 	protected long id;
 
 	@ApiModelProperty(required = false, notes = "field is read-only")
-	protected long createdByUserId;
+	@Column(columnDefinition = "BINARY(16)")
+	protected UUID createdByPublicUserId;
 
 	// This is how it should be done but there is a bug in Hibernate for 7 years, which prevents it from working
 	//@Formula("(SELECT u.user_name FROM users u WHERE u.id = 1)")
@@ -162,13 +164,12 @@ public class ChallengePrototype {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public long getCreatedByUserId() {
-		return createdByUserId;
+	public UUID getCreatedByPublicUserId() {
+		return createdByPublicUserId;
 	}
-	public void setCreatedByUserId(long createdByUserId) {
-		this.createdByUserId = createdByUserId;
+	public void setCreatedByPublicUserId(UUID createdByPublicUserId) {
+		this.createdByPublicUserId = createdByPublicUserId;
 	}
-
 	public Long getDurationSeconds() {
 		return durationSeconds;
 	}

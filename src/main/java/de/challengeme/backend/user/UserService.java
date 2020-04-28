@@ -32,7 +32,7 @@ public class UserService {
 	@Autowired
 	private EntityManager em;
 
-	public Points getUserPoints(User user) {
+	public Points getUserPoints(UserPrototype user) {
 
 		// @formatter:off
 		Query query = em.createNativeQuery( " SELECT 0 id, IFNULL(SUM(u.points),0) points FROM" + 
@@ -57,7 +57,7 @@ public class UserService {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<CategoryPoints> getUserPointsPerCategory(User user) {
+	public List<CategoryPoints> getUserPointsPerCategory(UserPrototype user) {
 
 		// @formatter:off
 		Query query = em.createNativeQuery( " SELECT 0 id, IFNULL(SUM(u.points),0) points, category FROM" + 
@@ -79,7 +79,7 @@ public class UserService {
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public Achievments getUserAchievments(User user, String imageUrlPrefix) throws IOException {
+	public Achievments getUserAchievments(UserPrototype user, String imageUrlPrefix) throws IOException {
 
 		Map<String, Object> predefinedAchievments;
 		ObjectMapper mapper = new ObjectMapper();
@@ -173,30 +173,25 @@ public class UserService {
 		return userRepository.getCountOfAdminUsers();
 	}
 
-	public User createUser() {
-		while (true) {
-			UUID userId = UUID.randomUUID();
-			User user = userRepository.getByUserId(userId.toString());
-			if (user == null) {
-				user = new User();
-				user.setUserId(userId);
-				user.setCreatedAt(Instant.now());
-				userRepository.saveAndFlush(user);
-				return user;
-			}
-		}
+	public synchronized MyUser createUser() {
+		MyUser user = new MyUser();
+		user.setPrivateUserId(UUID.randomUUID());
+		user.setPublicUserId(UUID.randomUUID());
+		user.setCreatedAt(Instant.now());
+		userRepository.saveAndFlush(user);
+		return user;
 	}
 
-	public User getUserByUserName(String userName) {
+	public MyUser getUserByUserName(String userName) {
 		return userRepository.getByUserName(userName);
 	}
 
-	public User getUserByUserId(UUID userId) {
-		return getUserByUserId(userId.toString());
+	public MyUser getUserByPrivateUserId(UUID userId) {
+		return getUserByPrivateUserId(userId.toString());
 	}
 
-	public User getUserByUserId(String userId) {
-		User user = userRepository.getByUserId(userId);
+	public MyUser getUserByPrivateUserId(String privateUserId) {
+		MyUser user = userRepository.getByPrivateUserId(privateUserId);
 		if (user != null) {
 			user.setLastRequestAt(Instant.now());
 			userRepository.save(user);
@@ -204,20 +199,38 @@ public class UserService {
 		return user;
 	}
 
-	public User getRootUser() {
+	public MyUser getRootUser() {
 		return userRepository.getRootUser();
 	}
 
-	public void save(User user) {
+	public void save(MyUser user) {
 		userRepository.saveAndFlush(user);
 	}
 
 	public String getUserNameFromId(long id) {
-		Optional<User> o = userRepository.findById(id);
+		Optional<MyUser> o = userRepository.findById(id);
 		if (o.isPresent()) {
 			return o.get().getUserName();
 		}
 		return null;
 	}
 
+	public PublicUser getPublicUserByUserId(UUID publicUserId) {
+		return getPublicUserByUserId(publicUserId.toString());
+	}
+
+	public PublicUser getPublicUserByUserId(String publicUserId) {
+
+		// @formatter:off
+		Query query = em.createNativeQuery( "SELECT * FROM users WHERE public_user_id = UUID_TO_BIN(:publicUserId)", PublicUser.class);
+		// @formatter:on
+
+		query.setParameter("publicUserId", publicUserId);
+
+		for (Object object : query.getResultList()) {
+			return (PublicUser) object;
+		}
+
+		return null;
+	}
 }

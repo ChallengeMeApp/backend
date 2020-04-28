@@ -5,7 +5,7 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "challenges", indexes = {@Index(name = "challengeCategoryIndex", columnList = "category", unique = false), @Index(name = "challengeCreatedByUserIdIndex", columnList = "createdByUserId", unique = false)})
+@Table(name = "challenges", indexes = {@Index(name = "categoryIndex", columnList = "category", unique = false), @Index(name = "createdByPublicUserIdIndex", columnList = "createdByPublicUserId", unique = false)})
 public class Challenge extends ChallengePrototype {
 
 }

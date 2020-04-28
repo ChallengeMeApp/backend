@@ -1,16 +1,13 @@
 package de.challengeme.backend.user;
 
-import java.time.Instant;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Table;
+import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -19,19 +16,22 @@ import de.challengeme.backend.validation.NoHtml;
 import de.challengeme.backend.validation.UserName;
 import io.swagger.annotations.ApiModelProperty;
 
-@Entity
-@Table(name = "users", indexes = {@Index(name = "userNameIndex", columnList = "userName", unique = true), @Index(name = "userUserIdIndex", columnList = "userId", unique = true)})
-public class User {
+@MappedSuperclass
+public class UserPrototype {
 
 	@JsonIgnore
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
+
+	@Nullable
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(columnDefinition = "BINARY(16)")
+	@ApiModelProperty(required = false, notes = "public user id, field is read-only")
+	private UUID publicUserId;
 
 	@ApiModelProperty(required = false, notes = "field is read-only")
 	private boolean admin;
-
-	@Nullable
-	@ApiModelProperty(required = false, notes = "field is read-only")
-	private UUID userId;
 
 	@Nullable
 	@NoHtml
@@ -57,30 +57,11 @@ public class User {
 	@ApiModelProperty(required = false, notes = "field is read-only, it contains the URL of the image to be displayed")
 	protected String imageUrl;
 
-	@Nullable
-	@ApiModelProperty(required = false, notes = "field is read-only")
-	private Instant createdAt;
-
-	@Nullable
-	@ApiModelProperty(required = false, notes = "field is read-only")
-	private Instant lastRequestAt;
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public long getId() {
 		return id;
 	}
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(columnDefinition = "BINARY(16)")
-	public UUID getUserId() {
-		return userId;
-	}
-	public void setUserId(UUID userId) {
-		this.userId = userId;
 	}
 	public String getFirstName() {
 		return firstName;
@@ -100,18 +81,6 @@ public class User {
 	public void setAdmin(boolean admin) {
 		this.admin = admin;
 	}
-	public Instant getCreatedAt() {
-		return createdAt;
-	}
-	public void setCreatedAt(Instant createdAt) {
-		this.createdAt = createdAt;
-	}
-	public Instant getLastRequestAt() {
-		return lastRequestAt;
-	}
-	public void setLastRequestAt(Instant lastRequestAt) {
-		this.lastRequestAt = lastRequestAt;
-	}
 	public String getUserName() {
 		return userName;
 	}
@@ -124,5 +93,10 @@ public class User {
 	public void setImageUrl(String imageUrl) {
 		this.imageUrl = imageUrl;
 	}
-
+	public UUID getPublicUserId() {
+		return publicUserId;
+	}
+	public void setPublicUserId(UUID publicUserId) {
+		this.publicUserId = publicUserId;
+	}
 }

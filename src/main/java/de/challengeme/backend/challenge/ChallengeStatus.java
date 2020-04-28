@@ -10,7 +10,7 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "challenge_status", indexes = {@Index(name = "userIndex", columnList = "userId", unique = false), @Index(name = "challengeIndex", columnList = "challengeId", unique = false)})
+@Table(name = "challenge_status", indexes = {@Index(name = "userIdIndex", columnList = "userId", unique = false), @Index(name = "challengeIdIndex", columnList = "challengeId", unique = false)})
 public class ChallengeStatus {
 
 	public enum State {

@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Bean;
 
 import com.google.common.base.Joiner;
 
-import de.challengeme.backend.user.User;
+import de.challengeme.backend.user.MyUser;
 import de.challengeme.backend.user.UserService;
 
 @ServletComponentScan
@@ -68,24 +68,24 @@ public class BackendApplication {
 
 			// create root admin user
 			if (userService.getCountOfAdminUsers() == 0) {
-				User user = userService.createUser();
+				MyUser user = userService.createUser();
 				user.setAdmin(true);
 				user.setFirstName("root");
 				user.setLastName("root");
 				user.setUserName("CM Team");
 				userService.save(user);
-				logger.info("Created root user: " + user.getUserId());
+				logger.info("Created root user: " + user.getPrivateUserId());
 			}
 
 			// create one guest user, usable for testing
 			if (userService.getUserByUserName("Guest") == null) {
-				User user = userService.createUser();
+				MyUser user = userService.createUser();
 				user.setAdmin(false);
 				user.setFirstName("Guest");
 				user.setLastName("Guest");
 				user.setUserName("Guest");
 				userService.save(user);
-				logger.info("Created guest user: " + user.getUserId());
+				logger.info("Created guest user: " + user.getPrivateUserId());
 			}
 
 			for (String argument : arguments) {

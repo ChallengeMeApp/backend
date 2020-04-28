@@ -18,7 +18,7 @@ import com.google.common.base.Preconditions;
 
 import de.challengeme.backend.timer.TimerService;
 import de.challengeme.backend.timer.TimerType;
-import de.challengeme.backend.user.User;
+import de.challengeme.backend.user.MyUser;
 
 @Service
 public class ChallengeService {
@@ -49,24 +49,24 @@ public class ChallengeService {
 		challengeRepository.deleteImportedChallenges();
 	}
 
-	public List<Challenge> getChallengesCreatedByUser(User user) {
+	public List<Challenge> getChallengesCreatedByUser(MyUser user) {
 		return challengeRepository.getChallengesCreatedByUser(user.getId());
 	}
 
-	public Slice<Challenge> getChallengesCreatedByUser(User user, Pageable pageable) {
+	public Slice<Challenge> getChallengesCreatedByUser(MyUser user, Pageable pageable) {
 		return challengeRepository.getChallengesCreatedByUser(user.getId(), pageable);
 	}
 
-	public Slice<Challenge> getChallengesIgnoredByUser(User user, Pageable pageable) {
+	public Slice<Challenge> getChallengesIgnoredByUser(MyUser user, Pageable pageable) {
 		return challengeRepository.getChallengesIgnoredByUser(user.getId(), pageable);
 	}
 
-	public Slice<Challenge> getChallengesMarkedByUser(User user, Pageable pageable) {
+	public Slice<Challenge> getChallengesMarkedByUser(MyUser user, Pageable pageable) {
 		return challengeRepository.getChallengesMarkedByUser(user.getId(), pageable);
 	}
 
 	@SuppressWarnings("unchecked")
-	public Slice<OnGoingChallenge> getChallengesOngoingByUser(User user, Pageable pageable) {
+	public Slice<OnGoingChallenge> getChallengesOngoingByUser(MyUser user, Pageable pageable) {
 
 		// @formatter:off
 		Query query = em.createNativeQuery( 
@@ -90,7 +90,7 @@ public class ChallengeService {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Slice<DoneChallenge> getChallengesDoneByUser(User user, Pageable pageable) {
+	public Slice<DoneChallenge> getChallengesDoneByUser(MyUser user, Pageable pageable) {
 
 		// @formatter:off
 		Query query = em.createNativeQuery( 
@@ -110,7 +110,7 @@ public class ChallengeService {
 		return new SliceImpl<>(query.getResultList(), pageable, true);
 	}
 
-	public Challenge getRandomChallenge(Category category, User user) {
+	public Challenge getRandomChallenge(Category category, MyUser user) {
 		return challengeRepository.getRandomChallenge(category.toString(), user.getId());
 	}
 
@@ -126,7 +126,7 @@ public class ChallengeService {
 		return challengeRepository.getImportedChallengeFromTitle(title);
 	}
 
-	public Slice<Challenge> getChallengesForStream(Category category, User user, Pageable pageable) {
+	public Slice<Challenge> getChallengesForStream(Category category, MyUser user, Pageable pageable) {
 		return challengeRepository.getChallengesForStream(category == null ? null : category.toString(), user.getId(), pageable);
 	}
 
@@ -153,16 +153,16 @@ public class ChallengeService {
 		return challengeRepository.findAll();
 	}
 
-	public void createChallenge(User user, Challenge challenge) {
+	public void createChallenge(MyUser user, Challenge challenge) {
 		challenge.setCreatedAt(Instant.now());
-		challenge.setCreatedByUserId(user.getId());
+		challenge.setCreatedByPublicUserId(user.getPublicUserId());
 		challengeRepository.saveAndFlush(challenge);
 	}
 
-	public Challenge markChallengeAsDeleted(User user, long challengeId) {
+	public Challenge markChallengeAsDeleted(MyUser user, long challengeId) {
 		Challenge challenge = challengeRepository.getOne(challengeId);
 		Preconditions.checkNotNull(challenge, "No challenge found with that id.");
-		if (challenge.getCreatedByUserId() == user.getId()) {
+		if (user.getPublicUserId().equals(challenge.getCreatedByPublicUserId())) {
 			challenge.setDeletedAt(Instant.now());
 			challengeRepository.saveAndFlush(challenge);
 			return challenge;
@@ -175,7 +175,7 @@ public class ChallengeService {
 		return challengeRepository.getChallengeFromId(challengeId);
 	}
 
-	public ChallengeWithStatus getChallengeWithStatusFromId(User user, long challengeId) {
+	public ChallengeWithStatus getChallengeWithStatusFromId(MyUser user, long challengeId) {
 
 		// @formatter:off
 		Query query = em.createNativeQuery( " SELECT *, " +
@@ -202,7 +202,7 @@ public class ChallengeService {
 		challengeResultRepository.saveAndFlush(challengeResult);
 	}
 
-	public void setChallengeIgnoredByUser(User user, Challenge challenge, boolean ignored) {
+	public void setChallengeIgnoredByUser(MyUser user, Challenge challenge, boolean ignored) {
 		ignoredChallengesRepository.delete(user.getId(), challenge.getId());
 
 		if (ignored) {
@@ -214,7 +214,7 @@ public class ChallengeService {
 		}
 	}
 
-	public void setChallengeMarkedByUser(User user, Challenge challenge, boolean marked) {
+	public void setChallengeMarkedByUser(MyUser user, Challenge challenge, boolean marked) {
 		markedChallengesRepository.delete(user.getId(), challenge.getId());
 
 		if (marked) {
