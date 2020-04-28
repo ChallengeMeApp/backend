@@ -1,0 +1,199 @@
+{
+	"byCategory": {
+		"household": {
+			"40": {
+				"name": "Heimscheisser"
+			},
+			"100": {
+				"name": "Kellerkind"
+			},
+			"250": {
+				"name": "Mamas Liebling"
+			},
+			"700": {
+				"name": "Hausmeister"
+			},
+			"1500": {
+				"name": "Platzhirsch"
+			}
+		},
+		"cooking": {
+			"40": {
+				"name": "Tellerwäscher"
+			},
+			"100": {
+				"name": "Kellner"
+			},
+			"250": {
+				"name": "Küchenfee"
+			},
+			"700": {
+				"name": "Sous-Chef"
+			},
+			"1500": {
+				"name": "Chefkoch"
+			}
+		},
+		"creative": {
+			"40": {
+				"name": "Tuschkastenvergesser"
+			},
+			"100": {
+				"name": "Fingerfarbenmaler"
+			},
+			"250": {
+				"name": "Deckweissbenutzer"
+			},
+			"700": {
+				"name": "Kleinkünstler"
+			},
+			"1500": {
+				"name": "Monets Erbe"
+			}
+		},
+		"education": {
+			"40": {
+				"name": "Ich-mag-Toastbrot!"
+			},
+			"100": {
+				"name": "Klugscheisser"
+			},
+			"250": {
+				"name": "Besserwisser"
+			},
+			"700": {
+				"name": "Günther Jauch"
+			},
+			"1500": {
+				"name": "Quizchampion"
+			}
+		},
+		"physical": {
+			"40": {
+				"name": "Couch-Potatoe"
+			},
+			"100": {
+				"name": "Turnbeutelvergesser"
+			},
+			"250": {
+				"name": "Tank-Top-Poser"
+			},
+			"700": {
+				"name": "Mannschaftskapitän"
+			},
+			"1500": {
+				"name": "Arnold S."
+			}
+		},
+		"social": {
+			"40": {
+				"name": "Einsiedlereule"
+			},
+			"100": {
+				"name": "Scheues Reh"
+			},
+			"250": {
+				"name": "Flüsterfuchs"
+			},
+			"700": {
+				"name": "Aufgeschlossene Antilope"
+			},
+			"1500": {
+				"name": "Partypinguin"
+			}
+		},
+		"noComfortZone": {
+			"40": {
+				"name": "Schnabeltassennutzer"
+			},
+			"100": {
+				"name": "Göffelbesitzer"
+			},
+			"250": {
+				"name": "Klettverschlussprofi"
+			},
+			"700": {
+				"name": "Stäbchenesser"
+			},
+			"1500": {
+				"name": "Schweizer Taschenmesser"
+			}
+		},
+		"selfcare": {
+			"40": {
+				"name": "Einstiegsyogi"
+			},
+			"100": {
+				"name": "Klangschalenbenutzer"
+			},
+			"250": {
+				"name": "Karmasammler"
+			},
+			"700": {
+				"name": "Ashrambesucher"
+			},
+			"1500": {
+				"name": "Buddah' best friend"
+			}
+		}
+	},
+	"overall": [
+		{
+			"name": "Holzmedaille",
+			"minLevels": [
+				{
+					"level": 1,
+					"amount": 6
+				}
+			]
+		},
+		{
+			"name": "Blechmedaille",
+			"minLevels": [
+				{
+					"level": 2,
+					"amount": 6
+				},
+				{
+					"level": 1,
+					"amount": "max"
+				}
+			]
+		},
+		{
+			"name": "Bronzemedaille",
+			"minLevels": [
+				{
+					"level": 3,
+					"amount": 6
+				},
+				{
+					"level": 2,
+					"amount": "max"
+				}
+			]
+		},
+		{
+			"name": "Silbermedaille",
+			"minLevels": [
+				{
+					"level": 4,
+					"amount": 6
+				},
+				{
+					"level": 3,
+					"amount": "max"
+				}
+			]
+		},
+		{
+			"name": "Goldmedaille",
+			"minLevels": [
+				{
+					"level": 5,
+					"amount": "max"
+				}
+			]
+		}
+	]
+}

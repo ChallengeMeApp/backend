@@ -44,6 +44,7 @@ import de.challengeme.backend.challenge.ChallengeStatus.State;
 import de.challengeme.backend.challenge.ChallengeWithStatus;
 import de.challengeme.backend.challenge.DoneChallenge;
 import de.challengeme.backend.challenge.OnGoingChallenge;
+import de.challengeme.backend.user.Achievments;
 import de.challengeme.backend.user.Points;
 import de.challengeme.backend.user.User;
 import de.challengeme.backend.user.UserService;
@@ -181,6 +182,21 @@ public class BackendControllerV1 {
 		}
 		enrichUser(result);
 		return result;
+	}
+
+	@GetMapping("/users/{userId}/achievments")
+	@ApiOperation(value = "Gets the achievments of a user.", response = Achievments.class)
+	public Object getUserAchievments(@PathVariable String userId) {
+		User user = userService.getUserByUserId(userId);
+		if (user == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
+		try {
+			return userService.getUserAchievments(user, imageUrlPrefix);
+		} catch (IOException e) {
+			logger.error("Error retrieving achievments.", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving achievments.");
+		}
 	}
 
 	@GetMapping("/users/{userId}/points")
