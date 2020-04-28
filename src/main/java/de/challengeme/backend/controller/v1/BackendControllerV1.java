@@ -48,6 +48,7 @@ import de.challengeme.backend.user.Achievments;
 import de.challengeme.backend.user.MyUser;
 import de.challengeme.backend.user.Points;
 import de.challengeme.backend.user.PublicUser;
+import de.challengeme.backend.user.UserPrototype;
 import de.challengeme.backend.user.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -176,8 +177,19 @@ public class BackendControllerV1 {
 
 	@GetMapping("/myUser/{privateUserId}")
 	@ApiOperation(value = "Gets a user object for the given privateUserId.", response = MyUser.class)
-	public Object getUser(@PathVariable String privateUserId) {
+	public Object getPrivateUser(@PathVariable String privateUserId) {
 		MyUser result = userService.getUserByPrivateUserId(privateUserId);
+		if (result == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
+		enrichUser(result);
+		return result;
+	}
+
+	@GetMapping("/publicUser/{publicUserId}")
+	@ApiOperation(value = "Gets a user object for the given publicUserId.", response = PublicUser.class)
+	public Object getPublicUser(@PathVariable String publicUserId) {
+		PublicUser result = userService.getPublicUserByUserId(publicUserId);
 		if (result == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}
@@ -286,7 +298,7 @@ public class BackendControllerV1 {
 		challenge.setCreatedByUserName(publicUser == null ? null : publicUser.getUserName());
 	}
 
-	private void enrichUser(MyUser user) {
+	private void enrichUser(UserPrototype user) {
 		if (!Strings.isNullOrEmpty(user.getImageUrl())) {
 			user.setImageUrl(imageUrlPrefix + user.getImageUrl());
 		}
