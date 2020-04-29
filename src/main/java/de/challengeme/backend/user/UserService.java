@@ -10,10 +10,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -30,6 +36,9 @@ public class UserService {
 	private UserRepository userRepository;
 
 	@Autowired
+	private ContactListRepository contactListRepository;
+
+	@PersistenceContext
 	private EntityManager em;
 
 	public Points getUserPoints(UserPrototype user) {
@@ -227,10 +236,50 @@ public class UserService {
 
 		query.setParameter("publicUserId", publicUserId);
 
-		for (Object object : query.getResultList()) {
-			return (PublicUser) object;
-		}
+		return (PublicUser) query.getSingleResult();
+	}
 
-		return null;
+	@SuppressWarnings("unchecked")
+	public Slice<PublicUser> getContactList(MyUser user, Pageable pageable) {
+
+		// @formatter:off
+		Query query = em.createNativeQuery( "SELECT * FROM users WHERE id IN (SELECT contact_id FROM contacts WHERE user_id = :userId)", PublicUser.class);
+		// @formatter:on
+
+		query.setParameter("userId", user.getId());
+
+		return new SliceImpl<>(query.getResultList(), pageable, true);
+	}
+
+	public boolean isOnContactList(MyUser myUser, PublicUser publicUser) {
+
+		// @formatter:off
+		Query query = em.createNativeQuery( "SELECT COUNT(contact_id) FROM contacts WHERE user_id = :userId AND contact_id = :contactId");
+		// @formatter:on
+
+		query.setParameter("userId", myUser.getId());
+		query.setParameter("contactId", publicUser.getId());
+
+		return ((Number) query.getSingleResult()).intValue() > 0;
+	}
+
+	public void addToContactList(MyUser myUser, PublicUser publicUser) {
+		ContactListEntry contactListEntry = new ContactListEntry();
+		contactListEntry.setUserId(myUser.getId());
+		contactListEntry.setContactId(publicUser.getId());
+		contactListRepository.saveAndFlush(contactListEntry);
+	}
+
+	@Transactional
+	@Modifying
+	public void removeFromContactList(MyUser myUser, PublicUser publicUser) {
+		// @formatter:off
+		Query query = em.createNativeQuery( "DELETE FROM contacts WHERE user_id = :userId AND contact_id = :contactId");
+		// @formatter:on
+
+		query.setParameter("userId", myUser.getId());
+		query.setParameter("contactId", publicUser.getId());
+
+		query.executeUpdate();
 	}
 }

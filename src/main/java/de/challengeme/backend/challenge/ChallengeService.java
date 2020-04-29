@@ -6,6 +6,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class ChallengeService {
 	@Autowired
 	private TimerService timerService;
 
-	@Autowired
+	@PersistenceContext
 	private EntityManager em;
 
 	public void deleteChallenge(long challengeId) {
