@@ -191,8 +191,20 @@ public class BackendControllerV1 {
 	@GetMapping("/publicUser/{publicUserId}")
 	@ApiOperation(value = "Gets a user object for the given publicUserId.", response = PublicUser.class)
 	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
-	public Object getPublicUser(@PathVariable String publicUserId) {
+	public Object getPublicUserByPublicUserId(@PathVariable String publicUserId) {
 		PublicUser result = userService.getPublicUserByUserId(publicUserId);
+		if (result == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+		}
+		enrichUser(result);
+		return result;
+	}
+
+	@GetMapping("/publicUserByName/{publicUserName}")
+	@ApiOperation(value = "Gets a user object for the given publicUserName.", response = PublicUser.class)
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	public Object getPublicUserByName(@PathVariable String publicUserName) {
+		PublicUser result = userService.getPublicUserByUserName(publicUserName);
 		if (result == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
 		}

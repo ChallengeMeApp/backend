@@ -239,6 +239,17 @@ public class UserService {
 		return (PublicUser) query.getSingleResult();
 	}
 
+	public PublicUser getPublicUserByUserName(String publicUserName) {
+
+		// @formatter:off
+		Query query = em.createNativeQuery( "SELECT * FROM users WHERE user_name = :userName", PublicUser.class);
+		// @formatter:on
+
+		query.setParameter("userName", publicUserName);
+
+		return (PublicUser) query.getSingleResult();
+	}
+
 	@SuppressWarnings("unchecked")
 	public Slice<PublicUser> getContactList(MyUser user, Pageable pageable) {
 
@@ -282,4 +293,5 @@ public class UserService {
 
 		query.executeUpdate();
 	}
+
 }
