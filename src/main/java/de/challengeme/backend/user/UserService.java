@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -196,11 +197,11 @@ public class UserService {
 	}
 
 	public MyUser getUserByPrivateUserId(UUID userId) {
-		return getUserByPrivateUserId(userId.toString());
+		return getUserByPrivateUserId(userId == null ? null : userId.toString());
 	}
 
 	public MyUser getUserByPrivateUserId(String privateUserId) {
-		MyUser user = userRepository.getByPrivateUserId(privateUserId);
+		MyUser user = privateUserId == null || privateUserId.length() != 36 ? null : userRepository.getByPrivateUserId(privateUserId);
 		if (user != null) {
 			user.setLastRequestAt(Instant.now());
 			userRepository.save(user);
@@ -225,10 +226,14 @@ public class UserService {
 	}
 
 	public PublicUser getPublicUserByUserId(UUID publicUserId) {
-		return getPublicUserByUserId(publicUserId.toString());
+		return getPublicUserByUserId(publicUserId == null ? null : publicUserId.toString());
 	}
 
 	public PublicUser getPublicUserByUserId(String publicUserId) {
+
+		if (publicUserId == null || publicUserId.length() != 36) {
+			return null;
+		}
 
 		// @formatter:off
 		Query query = em.createNativeQuery( "SELECT * FROM users WHERE public_user_id = UUID_TO_BIN(:publicUserId)", PublicUser.class);
@@ -240,6 +245,10 @@ public class UserService {
 	}
 
 	public PublicUser getPublicUserByUserName(String publicUserName) {
+
+		if (Strings.isNullOrEmpty(publicUserName)) {
+			return null;
+		}
 
 		// @formatter:off
 		Query query = em.createNativeQuery( "SELECT * FROM users WHERE user_name = :userName", PublicUser.class);

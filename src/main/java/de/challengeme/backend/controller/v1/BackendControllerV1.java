@@ -104,7 +104,7 @@ public class BackendControllerV1 {
 		} else {
 			userToSave = userService.getUserByPrivateUserId(user.getPrivateUserId());
 			if (userToSave == null) {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 			}
 
 			if ("Guest".equals(userToSave.getUserName())) {
@@ -140,11 +140,11 @@ public class BackendControllerV1 {
 
 	@PostMapping("/myUser/{privateUserId}/image")
 	@ApiOperation(value = "Sets the image of a user.", response = MyUser.class)
-	@ApiResponses(value = {@ApiResponse(code = 500, response = Void.class, message = "Could not store image."), @ApiResponse(code = 400, response = Void.class, message = "Validation failed."), @ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 500, response = Void.class, message = "Could not store image."), @ApiResponse(code = 400, response = Void.class, message = "Validation failed."), @ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object setUserImage(@PathVariable String privateUserId, @RequestBody @Valid MultipartFile file) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 
 		String fileName;
@@ -178,11 +178,11 @@ public class BackendControllerV1 {
 
 	@GetMapping("/myUser/{privateUserId}")
 	@ApiOperation(value = "Gets a user object for the given privateUserId.", response = MyUser.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object getPrivateUser(@PathVariable String privateUserId) {
 		MyUser result = userService.getUserByPrivateUserId(privateUserId);
 		if (result == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		enrichUser(result);
 		return result;
@@ -190,11 +190,11 @@ public class BackendControllerV1 {
 
 	@GetMapping("/publicUser/{publicUserId}")
 	@ApiOperation(value = "Gets a user object for the given publicUserId.", response = PublicUser.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object getPublicUserByPublicUserId(@PathVariable String publicUserId) {
 		PublicUser result = userService.getPublicUserByUserId(publicUserId);
 		if (result == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		enrichUser(result);
 		return result;
@@ -202,11 +202,11 @@ public class BackendControllerV1 {
 
 	@GetMapping("/publicUserByName/{publicUserName}")
 	@ApiOperation(value = "Gets a user object for the given publicUserName.", response = PublicUser.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object getPublicUserByName(@PathVariable String publicUserName) {
 		PublicUser result = userService.getPublicUserByUserName(publicUserName);
 		if (result == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		enrichUser(result);
 		return result;
@@ -214,11 +214,11 @@ public class BackendControllerV1 {
 
 	@GetMapping("/myUser/{privateUserId}/achievments")
 	@ApiOperation(value = "Gets the achievments of a user.", response = Achievments.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object getPrivateUserAchievments(@PathVariable String privateUserId) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		try {
 			return userService.getUserAchievments(user, imageUrlPrefix);
@@ -230,11 +230,11 @@ public class BackendControllerV1 {
 
 	@GetMapping("/publicUser/{publicUserId}/achievments")
 	@ApiOperation(value = "Gets the achievments of a user.", response = Achievments.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object getPublicUserAchievments(@PathVariable String publicUserId) {
 		PublicUser user = userService.getPublicUserByUserId(publicUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		try {
 			return userService.getUserAchievments(user, imageUrlPrefix);
@@ -246,33 +246,33 @@ public class BackendControllerV1 {
 
 	@GetMapping("/myUser/{privateUserId}/points")
 	@ApiOperation(value = "Gets the points of a user.", response = Points.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object getPrivateUserPoints(@PathVariable String privateUserId) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		return userService.getUserPoints(user);
 	}
 
 	@GetMapping("/publicUser/{publicUserId}/points")
 	@ApiOperation(value = "Gets the points of a user.", response = Points.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object getPublicUserPoints(@PathVariable String publicUserId) {
 		PublicUser user = userService.getPublicUserByUserId(publicUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		return userService.getUserPoints(user);
 	}
 
 	@GetMapping("/myUser/{privateUserId}/challenge/{challengeId}")
 	@ApiOperation(value = "Returns a challenge for the corresponding challengeId.", response = ChallengeWithStatus.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found."), @ApiResponse(code = 404, message = "Challenge not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found."), @ApiResponse(code = 404, message = "Challenge not found.")})
 	public Object getChallengeWithStatusById(@PathVariable String privateUserId, @PathVariable long challengeId) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		ChallengeWithStatus result = challengeService.getChallengeWithStatusFromId(user, challengeId);
 		if (result == null) {
@@ -292,11 +292,11 @@ public class BackendControllerV1 {
 
 	@GetMapping("/myUser/{privateUserId}/challenge_stream")
 	@ApiOperation(value = "Returns the stream of challenges for the different categories. If no category is given, it returns all of them.", response = Challenge.class, responseContainer = "List")
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object getChallengeStream(@PathVariable String privateUserId, @RequestParam(required = false) Category category, @RequestParam(defaultValue = "0") Integer pageIndex, @RequestParam(defaultValue = "10") Integer pageSize) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 
 		Slice<Challenge> resultSlice = challengeService.getChallengesForStream(category, user, PageRequest.of(pageIndex, pageSize));
@@ -333,12 +333,12 @@ public class BackendControllerV1 {
 
 	@PostMapping("/myUser/{privateUserId}/challenge_status/{challengeId}")
 	@ApiOperation(value = "This interface is called whenever a user is starting or finishing a challenge.", response = DefaultResponse.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found."), @ApiResponse(code = 404, message = "Challenge not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found."), @ApiResponse(code = 404, message = "Challenge not found.")})
 	public Object setChallengeResult(@PathVariable String privateUserId, @PathVariable Long challengeId, @RequestParam State state) {
 
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 
 		Challenge challenge = challengeService.getChallengeFromId(challengeId);
@@ -359,11 +359,11 @@ public class BackendControllerV1 {
 
 	@GetMapping("/myUser/{privateUserId}/ongoing_challenges")
 	@ApiOperation(value = "Gets all challenges, currently being done by the user.", response = Challenge.class, responseContainer = "List")
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object getOngoingChallenges(@PathVariable String privateUserId, @RequestParam(defaultValue = "0") Integer pageIndex, @RequestParam(defaultValue = "10") Integer pageSize) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		Slice<OnGoingChallenge> resultSlice = challengeService.getChallengesOngoingByUser(user, PageRequest.of(pageIndex, pageSize));
 		List<OnGoingChallenge> result = resultSlice.getContent();
@@ -373,11 +373,11 @@ public class BackendControllerV1 {
 
 	@GetMapping("/myUser/{privateUserId}/done_challenges")
 	@ApiOperation(value = "Gets all challenges done by the user (successfuly or not).", response = DoneChallenge.class, responseContainer = "List")
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object getDoneChallenges(@PathVariable String privateUserId, @RequestParam(defaultValue = "0") Integer pageIndex, @RequestParam(defaultValue = "10") Integer pageSize) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		Slice<DoneChallenge> resultSlice = challengeService.getChallengesDoneByUser(user, PageRequest.of(pageIndex, pageSize));
 		List<DoneChallenge> result = resultSlice.getContent();
@@ -387,11 +387,11 @@ public class BackendControllerV1 {
 
 	@GetMapping("/myUser/{privateUserId}/ignored_challenges")
 	@ApiOperation(value = "Gets all challenges, ignored by the user.", response = Challenge.class, responseContainer = "List")
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object getIgnoredChallenges(@PathVariable String privateUserId, @RequestParam(defaultValue = "0") Integer pageIndex, @RequestParam(defaultValue = "10") Integer pageSize) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		Slice<Challenge> resultSlice = challengeService.getChallengesIgnoredByUser(user, PageRequest.of(pageIndex, pageSize));
 		List<Challenge> result = resultSlice.getContent();
@@ -401,12 +401,12 @@ public class BackendControllerV1 {
 
 	@PostMapping("/myUser/{privateUserId}/ignored_challenges/{challengeId}")
 	@ApiOperation(value = "Challenges set on ignore will no longer be displayed in the proposition streams.", response = DefaultResponse.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found."), @ApiResponse(code = 404, message = "Challenge not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found."), @ApiResponse(code = 404, message = "Challenge not found.")})
 	public Object setChallengeIgnoredByUser(@PathVariable String privateUserId, @PathVariable Long challengeId, @RequestParam boolean ignored) {
 
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 
 		Challenge challenge = challengeService.getChallengeFromId(challengeId);
@@ -421,11 +421,11 @@ public class BackendControllerV1 {
 
 	@GetMapping("/myUser/{privateUserId}/marked_challenges")
 	@ApiOperation(value = "Gets all challenges, marked by the user (<3).", response = Challenge.class, responseContainer = "List")
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object getMarkedChallenges(@PathVariable String privateUserId, @RequestParam(defaultValue = "0") Integer pageIndex, @RequestParam(defaultValue = "10") Integer pageSize) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		Slice<Challenge> resultSlice = challengeService.getChallengesMarkedByUser(user, PageRequest.of(pageIndex, pageSize));
 		List<Challenge> result = resultSlice.getContent();
@@ -435,12 +435,12 @@ public class BackendControllerV1 {
 
 	@PostMapping("/myUser/{privateUserId}/marked_challenges/{challengeId}")
 	@ApiOperation(value = "Adds or removes a challenge from the marked-challenges-list of a user.", response = DefaultResponse.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found."), @ApiResponse(code = 404, message = "Challenge not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found."), @ApiResponse(code = 404, message = "Challenge not found.")})
 	public Object setChallengeMarkedByUser(@PathVariable String privateUserId, @PathVariable Long challengeId, @RequestParam boolean marked) {
 
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 
 		Challenge challenge = challengeService.getChallengeFromId(challengeId);
@@ -455,11 +455,11 @@ public class BackendControllerV1 {
 
 	@GetMapping("/myUser/{privateUserId}/contact_list")
 	@ApiOperation(value = "Gets all contacts of the user (<3).", response = PublicUser.class, responseContainer = "List")
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object getContactList(@PathVariable String privateUserId, @RequestParam(defaultValue = "0") Integer pageIndex, @RequestParam(defaultValue = "10") Integer pageSize) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		Slice<PublicUser> resultSlice = userService.getContactList(user, PageRequest.of(pageIndex, pageSize));
 		List<PublicUser> result = resultSlice.getContent();
@@ -469,15 +469,15 @@ public class BackendControllerV1 {
 
 	@PostMapping("/myUser/{privateUserId}/contact_list/{publicUserId}")
 	@ApiOperation(value = "Adds a user to the contacts of the user (<3).", response = DefaultResponse.class, responseContainer = "List")
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User ... not found."), @ApiResponse(code = 400, message = "You cannot add yourself."), @ApiResponse(code = 412, message = "User is already on the contact list.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found."), @ApiResponse(code = 404, message = "PublicUser not found."), @ApiResponse(code = 400, message = "You cannot add yourself."), @ApiResponse(code = 412, message = "User is already on the contact list.")})
 	public Object addToContactList(@PathVariable String privateUserId, @PathVariable String publicUserId) {
 		MyUser myUser = userService.getUserByPrivateUserId(privateUserId);
 		if (myUser == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User " + privateUserId + " not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		PublicUser publicUser = userService.getPublicUserByUserId(publicUserId);
 		if (publicUser == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User " + publicUserId + " not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("PublicUser not found.");
 		}
 		if (publicUser.getId() == myUser.getId()) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You cannot add yourself.");
@@ -493,15 +493,15 @@ public class BackendControllerV1 {
 
 	@DeleteMapping("/myUser/{privateUserId}/contact_list/{publicUserId}")
 	@ApiOperation(value = "Adds a user to the contacts of the user (<3).", response = DefaultResponse.class, responseContainer = "List")
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User ... not found."), @ApiResponse(code = 412, message = "User is not on the contact list.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found."), @ApiResponse(code = 404, message = "PublicUser not found."), @ApiResponse(code = 412, message = "User is not on the contact list.")})
 	public Object removeFromContactList(@PathVariable String privateUserId, @PathVariable String publicUserId) {
 		MyUser myUser = userService.getUserByPrivateUserId(privateUserId);
 		if (myUser == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User " + privateUserId + " not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		PublicUser publicUser = userService.getPublicUserByUserId(publicUserId);
 		if (publicUser == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User " + publicUserId + " not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("PublicUser not found.");
 		}
 		boolean isOnContactListAlready = userService.isOnContactList(myUser, publicUser);
 		if (!isOnContactListAlready) {
@@ -514,11 +514,11 @@ public class BackendControllerV1 {
 
 	@GetMapping("/myUser/{privateUserId}/created_challenges")
 	@ApiOperation(value = "Gets all challenges, created by the user.", response = Challenge.class, responseContainer = "List")
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object getCreatedChallenges(@PathVariable String privateUserId, @RequestParam(defaultValue = "0") Integer pageIndex, @RequestParam(defaultValue = "10") Integer pageSize) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		Slice<Challenge> resultSlice = challengeService.getChallengesCreatedByUser(user, PageRequest.of(pageIndex, pageSize));
 		List<Challenge> result = resultSlice.getContent();
@@ -528,11 +528,11 @@ public class BackendControllerV1 {
 
 	@PostMapping("/myUser/{privateUserId}/created_challenges")
 	@ApiOperation(value = "Creates a new challenge.", response = Challenge.class)
-	@ApiResponses(value = {@ApiResponse(code = 400, response = Void.class, message = "Validation failed."), @ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 400, response = Void.class, message = "Validation failed."), @ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object createChallenge(@PathVariable String privateUserId, @RequestBody @Valid Challenge challenge) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 
 		challenge.setId(0);
@@ -548,11 +548,11 @@ public class BackendControllerV1 {
 
 	@DeleteMapping("/myUser/{privateUserId}/created_challenges/{challengeId}")
 	@ApiOperation(value = "Removes the challenge with the corresponding id.", response = Challenge.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object deleteChallenge(@PathVariable String privateUserId, @PathVariable Long challengeId) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 
 		Challenge result = challengeService.markChallengeAsDeleted(user, challengeId);
@@ -562,11 +562,11 @@ public class BackendControllerV1 {
 
 	@PostMapping("/myUser/{privateUserId}/created_challenges/{challengeId}/image")
 	@ApiOperation(value = "Sets the image of a created challenge.", response = Challenge.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "User not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
 	public Object setChallengeImage(@PathVariable String privateUserId, @PathVariable Long challengeId, @RequestBody @Valid MultipartFile file) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 
 		Challenge challenge = challengeService.getChallengeFromId(challengeId);
