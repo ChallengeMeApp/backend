@@ -46,16 +46,8 @@ public class ChallengeService {
 		challengeRepository.deleteChallenge(challengeId);
 	}
 
-	public void deleteImportedChallenges() {
-		challengeRepository.deleteImportedChallenges();
-	}
-
-	public List<Challenge> getChallengesCreatedByUser(MyUser user) {
-		return challengeRepository.getChallengesCreatedByUser(user.getId());
-	}
-
 	public Slice<Challenge> getChallengesCreatedByUser(MyUser user, Pageable pageable) {
-		return challengeRepository.getChallengesCreatedByUser(user.getId(), pageable);
+		return challengeRepository.getChallengesCreatedByUser(user.getPublicUserId().toString(), pageable);
 	}
 
 	public Slice<Challenge> getChallengesIgnoredByUser(MyUser user, Pageable pageable) {
@@ -111,14 +103,6 @@ public class ChallengeService {
 		return new SliceImpl<>(query.getResultList(), pageable, true);
 	}
 
-	public Challenge getRandomChallenge(Category category, MyUser user) {
-		return challengeRepository.getRandomChallenge(category.toString(), user.getId());
-	}
-
-	public Challenge getRandomChallenge(Category category) {
-		return challengeRepository.getRandomChallenge(category.toString());
-	}
-
 	public List<Challenge> getImportedChallenges() {
 		return challengeRepository.getImportedChallenges();
 	}
@@ -161,7 +145,7 @@ public class ChallengeService {
 	}
 
 	public Challenge markChallengeAsDeleted(MyUser user, long challengeId) {
-		Challenge challenge = challengeRepository.getOne(challengeId);
+		Challenge challenge = challengeRepository.getChallengeFromId(challengeId);
 		Preconditions.checkNotNull(challenge, "No challenge found with that id.");
 		if (user.getPublicUserId().equals(challenge.getCreatedByPublicUserId())) {
 			challenge.setDeletedAt(Instant.now());
