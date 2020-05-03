@@ -85,7 +85,7 @@ public class BackendApplication {
 				user.setLastName("Guest");
 				user.setUserName("Guest");
 				userService.save(user);
-				logger.info("Created guest user: " + user.getPrivateUserId());
+				logger.info("Created guest user: {}", user.getPrivateUserId());
 			}
 
 			for (String argument : arguments) {

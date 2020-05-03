@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import de.challengeme.backend.timer.TimerService;
 import de.challengeme.backend.timer.TimerType;
 import de.challengeme.backend.user.MyUser;
+import de.challengeme.backend.user.UserPrototype;
 
 @Service
 public class ChallengeService {
@@ -138,7 +139,7 @@ public class ChallengeService {
 		return challengeRepository.findAll();
 	}
 
-	public void createChallenge(MyUser user, Challenge challenge) {
+	public void createChallenge(UserPrototype user, Challenge challenge) {
 		challenge.setCreatedAt(Instant.now());
 		challenge.setCreatedByPublicUserId(user.getPublicUserId());
 		challengeRepository.saveAndFlush(challenge);

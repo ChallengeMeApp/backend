@@ -43,13 +43,13 @@ public class UserPrototype {
 
 	@Nullable
 	@NoHtml
-	@Size(min = 2, max = 40, message = "userName must be between 2 and 40 characters")
+	@Size(min = 2, max = 40, message = "firstName must be between 2 and 40 characters")
 	@ApiModelProperty(allowableValues = "2-40 characters and no HTML", example = "Peter")
 	private String firstName;
 
 	@Nullable
 	@NoHtml
-	@Size(min = 2, max = 40, message = "userName must be between 2 and 40 characters")
+	@Size(min = 2, max = 40, message = "lastName must be between 2 and 40 characters")
 	@ApiModelProperty(allowableValues = "2-40 characters and no HTML", example = "Mues")
 	private String lastName;
 

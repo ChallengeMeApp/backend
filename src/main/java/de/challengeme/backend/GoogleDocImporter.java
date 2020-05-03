@@ -1,5 +1,6 @@
 package de.challengeme.backend;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,6 +16,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
@@ -26,7 +28,9 @@ import de.challengeme.backend.challenge.Challenge;
 import de.challengeme.backend.challenge.ChallengeKind;
 import de.challengeme.backend.challenge.ChallengeService;
 import de.challengeme.backend.user.MyUser;
+import de.challengeme.backend.user.UserPrototype;
 import de.challengeme.backend.user.UserService;
+import de.challengeme.backend.validation.UserNameValidator;
 
 @Configuration
 public class GoogleDocImporter {
@@ -39,14 +43,54 @@ public class GoogleDocImporter {
 	@Autowired
 	private UserService userService;
 
-	public void importChallenges(String excelFilePath) {
+	@Autowired
+	private Environment env;
 
-		MyUser user = userService.getRootUser();
+	public void importChallenges(String excelFile) {
 
 		try {
 
+			UserNameValidator.override = true;
+
+			Path excelFilePath = Paths.get(excelFile);
+			List<UserPrototype> teamMembers = Lists.newArrayList();
+			Path teamMemberPicFolder = excelFilePath.getParent().resolve("Team");
+			if (Files.isDirectory(teamMemberPicFolder)) {
+				Path imageDirectory = Paths.get(env.getProperty("questophant.image.directory"));
+				Files.list(teamMemberPicFolder).forEach(p -> {
+					String fileName = p.getFileName().toString();
+					int index = fileName.lastIndexOf('.');
+					if (index != -1) {
+						fileName = fileName.substring(0, index);
+					}
+					try {
+						Files.copy(p, imageDirectory.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+						String teamMemberName = fileName + " (Team)";
+						UserPrototype teamMember = userService.getUserByUserName(fileName);
+						if (userService.getUserByUserName(teamMemberName) == null) {
+							MyUser user = userService.createUser();
+							user.setAdmin(false);
+							user.setFirstName(fileName);
+							user.setLastName(null);
+							user.setUserName(teamMemberName);
+							user.setImageUrl(fileName);
+							userService.save(user);
+							logger.info("Created team user: {}", user.getPrivateUserId());
+							teamMember = user;
+						}
+						teamMembers.add(teamMember);
+					} catch (IOException e) {
+						logger.error("Error copying team member picture", e);
+					}
+				});
+			}
+
+			if (teamMembers.size() == 0) {
+				teamMembers.add(userService.getRootUser());
+			}
+
 			Path tmpFile = Files.createTempFile("xlsx", "xlsx");
-			Files.copy(Paths.get(excelFilePath), tmpFile, StandardCopyOption.REPLACE_EXISTING);
+			Files.copy(excelFilePath, tmpFile, StandardCopyOption.REPLACE_EXISTING);
 
 			try (XSSFWorkbook wb = new XSSFWorkbook(tmpFile.toFile())) {
 				wb.setMissingCellPolicy(MissingCellPolicy.CREATE_NULL_AS_BLANK);
@@ -120,7 +164,7 @@ public class GoogleDocImporter {
 								challenge.setAddToTreasureChest(row.getCell(16).toString().toLowerCase().contains("j"));
 								challenge.setCreatedByImport(true);
 
-								challengeService.createChallenge(user, challenge);
+								challengeService.createChallenge(teamMembers.get(Math.abs(challenge.getTitle().hashCode()) % teamMembers.size()), challenge);
 								logger.info("Created challenge {}.", challenge.getId());
 							} else {
 								logger.warn("Category '{}' not found or title '{}' empty, skipping import.", category, title);
