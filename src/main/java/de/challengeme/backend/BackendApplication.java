@@ -57,7 +57,7 @@ public class BackendApplication {
 		beanFactory.autowireBean(servlet); // <--- The most important part
 		servlet.initialize();
 		srb.setServlet(servlet);
-		srb.setUrlMappings(Arrays.asList("/img/*"));
+		srb.setUrlMappings(Arrays.asList("/api/v1/img/*"));
 		srb.setLoadOnStartup(1);
 		return srb;
 	}

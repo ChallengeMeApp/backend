@@ -42,6 +42,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 
+import com.google.common.collect.Lists;
+
 /**
  * A file servlet supporting resume of downloads and client-side caching and GZIP of text content. This servlet can also
  * be used for images, client-side caching would become more efficient. This servlet can also be used for text files,
@@ -393,16 +395,26 @@ public class ImageServlet extends HttpServlet {
 		int lastIndex = fileName.lastIndexOf('.');
 		int secondToLastIndex = fileName.lastIndexOf('.', lastIndex - 1);
 
-		String baseName = fileName.substring(0, secondToLastIndex);
+		String baseName = fileName.substring(0, secondToLastIndex == -1 ? lastIndex : secondToLastIndex);
 		Path baseFile = basePath.resolve(baseName);
 
 		if (Files.exists(baseFile)) {
 
-			// we use ImageMagick instead of making our hands dirty ourselves
+			// we use ImageMagick instead of making our hands dirty
 
-			String sizeString = fileName.substring(secondToLastIndex + 1, lastIndex);
+			List<String> commands = Lists.newArrayList();
+			commands.add("magick");
+			commands.add(baseFile.toAbsolutePath().toString());
+			commands.add("-auto-orient");
 
-			Process p = new ProcessBuilder("magick", baseFile.toAbsolutePath().toString(), "-auto-orient", "-resize", sizeString + "^", file.toAbsolutePath().toString()).start();
+			if (secondToLastIndex != -1) {
+				commands.add("-resize");
+				commands.add(fileName.substring(secondToLastIndex + 1, lastIndex) + "^");
+			}
+
+			commands.add(file.toAbsolutePath().toString());
+
+			Process p = new ProcessBuilder(commands).start();
 			try {
 				p.waitFor(10, TimeUnit.SECONDS);
 			} catch (Exception e) {

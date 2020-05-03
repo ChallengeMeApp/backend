@@ -241,7 +241,10 @@ public class UserService {
 
 		query.setParameter("publicUserId", publicUserId);
 
-		return (PublicUser) query.getSingleResult();
+		for (Object o : query.getResultList()) {
+			return (PublicUser) o;
+		}
+		return null;
 	}
 
 	public PublicUser getPublicUserByUserName(String publicUserName) {
@@ -256,7 +259,10 @@ public class UserService {
 
 		query.setParameter("userName", publicUserName);
 
-		return (PublicUser) query.getSingleResult();
+		for (Object o : query.getResultList()) {
+			return (PublicUser) o;
+		}
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")

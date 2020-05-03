@@ -1,11 +1,11 @@
 package de.challengeme.backend.controller.v1;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
@@ -139,9 +138,9 @@ public class BackendControllerV1 {
 	}
 
 	@PostMapping("/myUser/{privateUserId}/image")
-	@ApiOperation(value = "Sets the image of a user.", response = MyUser.class)
+	@ApiOperation(value = "Uploads a base64 encoded image of the user.", response = MyUser.class)
 	@ApiResponses(value = {@ApiResponse(code = 500, response = Void.class, message = "Could not store image."), @ApiResponse(code = 400, response = Void.class, message = "Validation failed."), @ApiResponse(code = 404, message = "MyUser not found.")})
-	public Object setUserImage(@PathVariable String privateUserId, @RequestBody @Valid MultipartFile file) {
+	public Object setUserImage(@PathVariable String privateUserId, @RequestBody String imageString) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
@@ -153,10 +152,14 @@ public class BackendControllerV1 {
 			fileName = UUID.randomUUID().toString();
 		} while (Files.exists(imageFolderPath.resolve(fileName)));
 
-		try (InputStream from = file.getInputStream()) {
+		try {
+			// data will be "data:image/png;base64,iVBO..."
+			imageString = imageString.substring(imageString.indexOf(',') + 1); // remove everything in front of the data
+			//This will decode the String which is encoded by using Base64 class
+			byte[] imageBytes = Base64.getDecoder().decode(imageString);
 			Files.createDirectories(imageFolderPath);
-			Files.copy(from, imageFolderPath.resolve(fileName));
-		} catch (IOException e) {
+			Files.write(imageFolderPath.resolve(fileName), imageBytes);
+		} catch (Exception e) {
 			logger.error("Could not store image.", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not store image.");
 		}
@@ -190,11 +193,11 @@ public class BackendControllerV1 {
 
 	@GetMapping("/publicUser/{publicUserId}")
 	@ApiOperation(value = "Gets a user object for the given publicUserId.", response = PublicUser.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "PublicUser not found.")})
 	public Object getPublicUserByPublicUserId(@PathVariable String publicUserId) {
 		PublicUser result = userService.getPublicUserByUserId(publicUserId);
 		if (result == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("PublicUser not found.");
 		}
 		enrichUser(result);
 		return result;
@@ -202,11 +205,11 @@ public class BackendControllerV1 {
 
 	@GetMapping("/publicUserByName/{publicUserName}")
 	@ApiOperation(value = "Gets a user object for the given publicUserName.", response = PublicUser.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "PublicUser not found.")})
 	public Object getPublicUserByName(@PathVariable String publicUserName) {
 		PublicUser result = userService.getPublicUserByUserName(publicUserName);
 		if (result == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("PublicUser not found.");
 		}
 		enrichUser(result);
 		return result;
@@ -230,11 +233,11 @@ public class BackendControllerV1 {
 
 	@GetMapping("/publicUser/{publicUserId}/achievments")
 	@ApiOperation(value = "Gets the achievments of a user.", response = Achievments.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "PublicUser not found.")})
 	public Object getPublicUserAchievments(@PathVariable String publicUserId) {
 		PublicUser user = userService.getPublicUserByUserId(publicUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("PublicUser not found.");
 		}
 		try {
 			return userService.getUserAchievments(user, imageUrlPrefix);
@@ -257,11 +260,11 @@ public class BackendControllerV1 {
 
 	@GetMapping("/publicUser/{publicUserId}/points")
 	@ApiOperation(value = "Gets the points of a user.", response = Points.class)
-	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
+	@ApiResponses(value = {@ApiResponse(code = 404, message = "PublicUser not found.")})
 	public Object getPublicUserPoints(@PathVariable String publicUserId) {
 		PublicUser user = userService.getPublicUserByUserId(publicUserId);
 		if (user == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("PublicUser not found.");
 		}
 		return userService.getUserPoints(user);
 	}
@@ -563,7 +566,7 @@ public class BackendControllerV1 {
 	@PostMapping("/myUser/{privateUserId}/created_challenges/{challengeId}/image")
 	@ApiOperation(value = "Sets the image of a created challenge.", response = Challenge.class)
 	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
-	public Object setChallengeImage(@PathVariable String privateUserId, @PathVariable Long challengeId, @RequestBody @Valid MultipartFile file) {
+	public Object setChallengeImage(@PathVariable String privateUserId, @PathVariable Long challengeId, @RequestBody String imageString) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
@@ -580,9 +583,13 @@ public class BackendControllerV1 {
 			fileName = UUID.randomUUID().toString();
 		} while (Files.exists(imageFolderPath.resolve(fileName)));
 
-		try (InputStream from = file.getInputStream()) {
+		try {
+			// data will be "data:image/png;base64,iVBO..."
+			imageString = imageString.substring(imageString.indexOf(',') + 1); // remove everything in front of the data
+			//This will decode the String which is encoded by using Base64 class
+			byte[] imageBytes = Base64.getDecoder().decode(imageString);
 			Files.createDirectories(imageFolderPath);
-			Files.copy(from, imageFolderPath.resolve(fileName));
+			Files.write(imageFolderPath.resolve(fileName), imageBytes);
 		} catch (IOException e) {
 			logger.error("Could not save image.", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not save image.");
