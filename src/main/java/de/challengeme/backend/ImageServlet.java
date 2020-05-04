@@ -424,7 +424,7 @@ public class ImageServlet extends HttpServlet {
 			}
 
 			commandLine.add("-quality");
-			commandLine.add("90");
+			commandLine.add("95");
 
 			commandLine.add(file.toAbsolutePath().toString());
 
