@@ -39,9 +39,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 /**
@@ -402,19 +404,33 @@ public class ImageServlet extends HttpServlet {
 
 			// we use ImageMagick instead of making our hands dirty
 
-			List<String> commands = Lists.newArrayList();
-			commands.add("magick");
-			commands.add(baseFile.toAbsolutePath().toString());
-			commands.add("-auto-orient");
+			String format = fileName.substring(lastIndex + 1);
+
+			List<String> commandLine = Lists.newArrayList();
+			commandLine.add("magick");
+			commandLine.add(baseFile.toAbsolutePath().toString());
+			commandLine.add("-auto-orient");
 
 			if (secondToLastIndex != -1) {
-				commands.add("-resize");
-				commands.add(fileName.substring(secondToLastIndex + 1, lastIndex) + "^");
+				commandLine.add("-resize");
+				commandLine.add(fileName.substring(secondToLastIndex + 1, lastIndex) + "^");
 			}
 
-			commands.add(file.toAbsolutePath().toString());
+			if ("webp".equals(format)) {
+				commandLine.add("-define");
+				commandLine.add("webp:image-hint=photo");
+				commandLine.add("-define");
+				commandLine.add("webp:lossless=false");
+			}
 
-			Process p = new ProcessBuilder(commands).start();
+			commandLine.add("-quality");
+			commandLine.add("90");
+
+			commandLine.add(file.toAbsolutePath().toString());
+
+			LogManager.getLogger().info("Executing: {}", Joiner.on(' ').join(commandLine));
+
+			Process p = new ProcessBuilder(commandLine).start();
 			try {
 				p.waitFor(10, TimeUnit.SECONDS);
 			} catch (Exception e) {
