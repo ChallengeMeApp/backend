@@ -163,6 +163,7 @@ public class GoogleDocImporter {
 
 								challenge.setAddToTreasureChest(row.getCell(16).toString().toLowerCase().contains("j"));
 								challenge.setCreatedByImport(true);
+								challenge.setInDistribution(true);
 
 								challengeService.createChallenge(teamMembers.get(Math.abs(challenge.getTitle().hashCode()) % teamMembers.size()), challenge);
 								logger.info("Created challenge {}.", challenge.getId());

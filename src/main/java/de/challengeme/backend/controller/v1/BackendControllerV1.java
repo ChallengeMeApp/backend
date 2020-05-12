@@ -532,21 +532,49 @@ public class BackendControllerV1 {
 	@PostMapping("/myUser/{privateUserId}/created_challenges")
 	@ApiOperation(value = "Creates a new challenge.", response = Challenge.class)
 	@ApiResponses(value = {@ApiResponse(code = 400, response = Void.class, message = "Validation failed."), @ApiResponse(code = 404, message = "MyUser not found.")})
-	public Object createChallenge(@PathVariable String privateUserId, @RequestBody @Valid Challenge challenge) {
+	public Object createChallenge(@PathVariable String privateUserId, @RequestBody @Valid Challenge challenge) throws Exception {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 
 		challenge.setId(0);
-		challenge.setDeletedAt(null);
-		challenge.setCreatedByImport(false);
-		challenge.setPointsLoose(0);
-		challenge.setPointsWin(10);
+		challenge.setImageUrl(null);
 
 		challengeService.createChallenge(user, challenge);
 		enrichChallenge(challenge);
 		return challenge;
+	}
+
+	@PostMapping("/myUser/{privateUserId}/created_challenges/{challengeId}")
+	@ApiOperation(value = "Updates the challenge with the corresponding id. The id of the challenge object is ignored.", response = Challenge.class)
+	@ApiResponses(value = {@ApiResponse(code = 400, response = Void.class, message = "Validation failed."), @ApiResponse(code = 404, message = "MyUser not found."), @ApiResponse(code = 401, message = "Challenge was not created by this user.")})
+	public Object updateChallenge(@PathVariable String privateUserId, @PathVariable Long challengeId, @RequestBody @Valid Challenge challenge) throws Exception {
+		MyUser user = userService.getUserByPrivateUserId(privateUserId);
+		if (user == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
+		}
+
+		Challenge prevChallenge = challengeService.getChallengeFromId(challengeId);
+		if (!user.getPublicUserId().equals(prevChallenge.getCreatedByPublicUserId())) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Challenge was not created by this user.");
+		}
+
+		challenge.setId(challengeId);
+		challenge.setImageUrl(prevChallenge.getImageUrl());
+		modifyCreatedOrEditedChallenge(challenge);
+
+		challengeService.updateChallenge(user, challenge);
+
+		enrichChallenge(challenge);
+		return challenge;
+	}
+
+	private void modifyCreatedOrEditedChallenge(Challenge challenge) {
+		challenge.setPointsLoose(0);
+		challenge.setPointsWin(10);
+		challenge.setDeletedAt(null);
+		challenge.setCreatedByImport(false);
 	}
 
 	@DeleteMapping("/myUser/{privateUserId}/created_challenges/{challengeId}")
@@ -566,7 +594,7 @@ public class BackendControllerV1 {
 	@PostMapping("/myUser/{privateUserId}/created_challenges/{challengeId}/image")
 	@ApiOperation(value = "Sets the image of a created challenge.", response = Challenge.class)
 	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
-	public Object setChallengeImage(@PathVariable String privateUserId, @PathVariable Long challengeId, @RequestBody String imageString) {
+	public Object setChallengeImage(@PathVariable String privateUserId, @PathVariable Long challengeId, @RequestBody String imageString) throws Exception {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
@@ -596,7 +624,7 @@ public class BackendControllerV1 {
 		}
 
 		challenge.setImageUrl(fileName);
-		challengeService.save(challenge);
+		challengeService.updateChallenge(user, challenge);
 
 		enrichChallenge(challenge);
 		return challenge;

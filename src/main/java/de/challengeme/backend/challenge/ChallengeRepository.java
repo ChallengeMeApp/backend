@@ -52,7 +52,7 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 			"	SELECT *, (successes / (successes + failures)) as successFailureRatio FROM (" + 
 			"	 SELECT c.*, SUM(case when cs.state = 1 then 1 else 0 end) as successes, SUM(case when cs.state = 2 then 1 else 0 end) as failures FROM challenges AS c" + 
 			"	 LEFT JOIN challenge_status AS cs ON cs.challenge_id = c.id" + 
-			"    WHERE c.deleted_at IS NULL AND c.kind = 'self' AND c.created_by_import AND (:category IS NULL OR c.category = :category) AND" +
+			"    WHERE c.deleted_at IS NULL AND c.kind = 'self' AND c.in_distribution AND (:category IS NULL OR c.category = :category) AND" +
 			"          (c.repeatable_after_days IS NOT NULL OR c.id NOT IN (SELECT challenge_id FROM challenge_status WHERE user_id = :userId AND state != 0)) AND" +
 			"          c.id NOT IN (SELECT challenge_id FROM ignored_challenges WHERE user_id = :userId)" +
 			"    GROUP by c.id"+

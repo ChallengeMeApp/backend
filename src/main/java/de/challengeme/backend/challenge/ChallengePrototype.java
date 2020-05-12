@@ -17,6 +17,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import de.challengeme.backend.validation.NoHtml;
@@ -82,6 +83,9 @@ public class ChallengePrototype {
 
 	@ApiModelProperty(required = false, notes = "field is read-only")
 	protected boolean createdByImport;
+
+	@JsonIgnore
+	protected boolean inDistribution;
 
 	@Nullable
 	@Min(1)
@@ -213,4 +217,11 @@ public class ChallengePrototype {
 	public void setImageUrl(String pictureUrl) {
 		this.imageUrl = pictureUrl;
 	}
+	public boolean isInDistribution() {
+		return inDistribution;
+	}
+	public void setInDistribution(boolean inDistribution) {
+		this.inDistribution = inDistribution;
+	}
+
 }

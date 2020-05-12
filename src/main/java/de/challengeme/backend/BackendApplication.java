@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 
 import com.google.common.base.Joiner;
 
+import de.challengeme.backend.controller.v1.ImageServletV1;
 import de.challengeme.backend.user.MyUser;
 import de.challengeme.backend.user.UserService;
 
@@ -53,7 +54,7 @@ public class BackendApplication {
 	@Bean
 	public ServletRegistrationBean initializeImageServlet() {
 		ServletRegistrationBean srb = new ServletRegistrationBean();
-		final ImageServlet servlet = new ImageServlet();
+		final ImageServletV1 servlet = new ImageServletV1();
 		beanFactory.autowireBean(servlet); // <--- The most important part
 		servlet.initialize();
 		srb.setServlet(servlet);

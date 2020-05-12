@@ -18,7 +18,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.challengeme.backend;
+package de.challengeme.backend.controller.v1;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -55,7 +55,7 @@ import com.google.common.collect.Lists;
  * @link http://balusc.blogspot.com/2009/02/fileservlet-supporting-resume-and.html
  */
 @SuppressWarnings("serial")
-public class ImageServlet extends HttpServlet {
+public class ImageServletV1 extends HttpServlet {
 
 	// Constants ----------------------------------------------------------------------------------
 

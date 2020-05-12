@@ -1,5 +1,7 @@
 package de.challengeme.backend.challenge;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 import de.challengeme.backend.timer.TimerService;
 import de.challengeme.backend.timer.TimerType;
@@ -139,8 +142,29 @@ public class ChallengeService {
 		return challengeRepository.findAll();
 	}
 
-	public void createChallenge(UserPrototype user, Challenge challenge) {
+	public void createChallenge(UserPrototype user, Challenge challenge) throws Exception {
 		challenge.setCreatedAt(Instant.now());
+		updateChallenge(user, challenge);
+	}
+
+	public void updateChallenge(UserPrototype user, Challenge challenge) throws Exception {
+
+		String desc = challenge.getDescription().toLowerCase();
+		String title = challenge.getTitle().toLowerCase();
+		String material = Strings.nullToEmpty(challenge.getMaterial()).toLowerCase();
+		boolean foundAnyWord = false;
+
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/wordFilter.txt")))) {
+			while (reader.ready()) {
+				String word = reader.readLine().toLowerCase();
+				if (desc.contains(word) || title.contains(word) || material.contains(word)) {
+					foundAnyWord = true;
+					break;
+				}
+			}
+		}
+
+		challenge.setInDistribution(!foundAnyWord);
 		challenge.setCreatedByPublicUserId(user.getPublicUserId());
 		challengeRepository.saveAndFlush(challenge);
 	}
@@ -180,9 +204,9 @@ public class ChallengeService {
 		return null;
 	}
 
-	public void save(Challenge challenge) {
-		challengeRepository.saveAndFlush(challenge);
-	}
+	//	public void save(Challenge challenge) {
+	//		challengeRepository.saveAndFlush(challenge);
+	//	}
 
 	public void save(ChallengeStatus challengeResult) {
 		challengeResultRepository.saveAndFlush(challengeResult);
