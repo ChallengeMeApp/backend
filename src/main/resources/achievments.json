@@ -5,16 +5,19 @@
 				"name": "Heimscheisser"
 			},
 			"100": {
-				"name": "Kellerkind"
+				"name": "Sockenbügler"
 			},
 			"250": {
-				"name": "Mamas Liebling"
+				"name": "Schubladenetikettierer"
 			},
 			"700": {
-				"name": "Hausmeister"
+				"name": "Kühlschrankinventierer"
 			},
 			"1500": {
-				"name": "Platzhirsch"
+				"name": "Süßigkeitenhamsterer"
+			},
+			"2500": {
+				"name": "Hausmeister des Olymp"
 			}
 		},
 		"cooking": {
@@ -32,6 +35,21 @@
 			},
 			"1500": {
 				"name": "Chefkoch"
+			},
+			"2500": {
+				"name": "Herd der Hestia"
+			},
+			"5000": {
+				"name": "Kleiner Sommelier"
+			},
+			"10000": {
+				"name": "Bankettleiter"
+			},
+			"20000": {
+				"name": "Restaurantdirektor"
+			},
+			"40000": {
+				"name": "Michelin-Restaurant"
 			}
 		},
 		"creative": {
@@ -49,6 +67,9 @@
 			},
 			"1500": {
 				"name": "Monets Erbe"
+			},
+			"2500": {
+				"name": "Ölfarben-Apollon"
 			}
 		},
 		"education": {
@@ -62,15 +83,76 @@
 				"name": "Besserwisser"
 			},
 			"700": {
-				"name": "Günther Jauch"
+				"name": "G. Jauch"
 			},
 			"1500": {
 				"name": "Quizchampion"
+			},
+			"2500": {
+				"name": "Allgemeinwissen-Athene"
+			},
+			"5000": {
+				"name": "Platz 100 auf Quizduell"
+			},
+			"10000": {
+				"name": "Mr./Mrs. Allwissend"
+			},
+			"20000": {
+				"name": "IQ-Systemsprenger"
+			},
+			"40000": {
+				"name": "S. Hawking"
+			}
+		},
+		"fun": {
+			"40": {
+				"name": "Fritzchen-Witz-Erzähler"
+			},
+			"100": {
+				"name": "Gaggiger Poetryslammer"
+			},
+			"250": {
+				"name": "Sit-Down-Comedian"
+			},
+			"700": {
+				"name": "Sarkasmus Profi"
+			},
+			"2500": {
+				"name": "Pointendionysos"
+			}
+		},
+		"eco": {
+			"40": {
+				"name": "Plastiktüten-Vermeider"
+			},
+			"100": {
+				"name": "Geschenkpapierwiederbenutzer"
+			},
+			"250": {
+				"name": "Bambuszahnbürste"
+			},
+			"700": {
+				"name": "Vulkanerdenduscher"
+			},
+			"1500": {
+				"name": "Unverpacktladen-Käufer"
+			},
+			"2500": {
+				"name": "Hartseifenposeidon"
+			},
+			"5000": {
+				"name": "Kombucha-Hersteller"
+			},
+			"20000": {
+				"name": "Food-Sharing Held"
+			},
+			"40000": {
+				"name": "Zero-Waste Gott"
 			}
 		},
 		"physical": {
 			"40": {
-				"name": "Couch-Potatoe"
+				"name": "Couch-Potato"
 			},
 			"100": {
 				"name": "Turnbeutelvergesser"
@@ -82,24 +164,30 @@
 				"name": "Mannschaftskapitän"
 			},
 			"1500": {
-				"name": "Arnold S."
+				"name": "A. Schwarzenegger"
+			},
+			"2500": {
+				"name": "Hüpfburgen-Herakles"
 			}
 		},
 		"social": {
 			"40": {
-				"name": "Einsiedlereule"
+				"name": "Erstkontakt"
 			},
 			"100": {
 				"name": "Scheues Reh"
 			},
 			"250": {
-				"name": "Flüsterfuchs"
+				"name": "E.T.s Leuchtfinger"
 			},
 			"700": {
 				"name": "Aufgeschlossene Antilope"
 			},
-			"1500": {
+			"5000": {
 				"name": "Partypinguin"
+			},
+			"10000": {
+				"name": "Mutter Theresa"
 			}
 		},
 		"noComfortZone": {
@@ -134,6 +222,9 @@
 			},
 			"1500": {
 				"name": "Buddah' best friend"
+			},
+			"40000": {
+				"name": "Buddah ihm seine Mudda"
 			}
 		}
 	},
@@ -143,16 +234,16 @@
 			"minLevels": [
 				{
 					"level": 1,
-					"amount": 6
+					"amount": 7
 				}
 			]
 		},
 		{
-			"name": "Blechmedaille",
+			"name": "Steinmedaille",
 			"minLevels": [
 				{
 					"level": 2,
-					"amount": 6
+					"amount": 7
 				},
 				{
 					"level": 1,
@@ -161,11 +252,11 @@
 			]
 		},
 		{
-			"name": "Bronzemedaille",
+			"name": "Blechmedaille",
 			"minLevels": [
 				{
 					"level": 3,
-					"amount": 6
+					"amount": 7
 				},
 				{
 					"level": 2,
@@ -174,11 +265,11 @@
 			]
 		},
 		{
-			"name": "Silbermedaille",
+			"name": "Bronzemedaille",
 			"minLevels": [
 				{
 					"level": 4,
-					"amount": 6
+					"amount": 7
 				},
 				{
 					"level": 3,
@@ -187,10 +278,75 @@
 			]
 		},
 		{
-			"name": "Goldmedaille",
+			"name": "Silbermedaille",
 			"minLevels": [
 				{
 					"level": 5,
+					"amount": 7
+				},
+				{
+					"level": 4,
+					"amount": "max"
+				}
+			]
+		},
+		{
+			"name": "Goldmedaille",
+			"minLevels": [
+				{
+					"level": 6,
+					"amount": 7
+				},
+				{
+					"level": 5,
+					"amount": "max"
+				}
+			]
+		},
+		{
+			"name": "Platinmedaille",
+			"minLevels": [
+				{
+					"level": 7,
+					"amount": 7
+				},
+				{
+					"level": 6,
+					"amount": "max"
+				}
+			]
+		},
+		{
+			"name": "Taaffeitemedaille",
+			"minLevels": [
+				{
+					"level": 8,
+					"amount": 7
+				},
+				{
+					"level": 7,
+					"amount": "max"
+				}
+			]
+		},
+		{
+			"name": "Diamantmedaille",
+			"minLevels": [
+				{
+					"level": 9,
+					"amount": 7
+				},
+				{
+					"level": 8,
+					"amount": "max"
+				}
+			]
+		},
+		{
+			"name": "Antimaterie-Medaille",
+			"minLevels": [
+				{
+					"level": 10,
 					"amount": "max"
 				}
 			]
