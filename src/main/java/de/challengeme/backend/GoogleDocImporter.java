@@ -66,8 +66,8 @@ public class GoogleDocImporter {
 					try {
 						Files.copy(p, imageDirectory.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
 						String teamMemberName = fileName + " (Team)";
-						UserPrototype teamMember = userService.getUserByUserName(fileName);
-						if (userService.getUserByUserName(teamMemberName) == null) {
+						UserPrototype teamMemberUser = userService.getUserByUserName(teamMemberName);
+						if (teamMemberUser == null) {
 							MyUser user = userService.createUser();
 							user.setAdmin(false);
 							user.setFirstName(fileName);
@@ -76,9 +76,9 @@ public class GoogleDocImporter {
 							user.setImageUrl(fileName);
 							userService.save(user);
 							logger.info("Created team user: {}", user.getPrivateUserId());
-							teamMember = user;
+							teamMemberUser = user;
 						}
-						teamMembers.add(teamMember);
+						teamMembers.add(teamMemberUser);
 					} catch (IOException e) {
 						logger.error("Error copying team member picture", e);
 					}
