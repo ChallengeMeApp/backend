@@ -91,6 +91,8 @@ public class UserService {
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public Achievments getUserAchievments(UserPrototype user, String imageUrlPrefix) throws IOException {
 
+		String NOT_ACHIEVED_IMAGE_NAME = imageUrlPrefix + "Fragezeichen";
+
 		Map<String, Object> predefinedAchievments;
 		ObjectMapper mapper = new ObjectMapper();
 		try (InputStream is = getClass().getResourceAsStream("/achievments.json")) {
@@ -122,17 +124,19 @@ public class UserService {
 				if (entryPA.getValue() instanceof Map) {
 					Map paMap = Helper.getAsMap(entryPA.getValue());
 					String name = Helper.getAsString(paMap.get("name"), "");
-					String imageUrl = Helper.getAsString(paMap.get("imageUrl"), "");
+					String imageUrl = Helper.getAsString(paMap.get("image"), "");
 
 					if (imageUrl.length() > 0) {
 						imageUrl = imageUrlPrefix + imageUrl;
+					} else {
+						imageUrl = NOT_ACHIEVED_IMAGE_NAME; // no image yet
 					}
 
 					if (Long.parseLong(entryPA.getKey()) <= points) {
 						achievments.add(new Achievment(name, imageUrl, true));
 						level++;
 					} else {
-						achievments.add(new Achievment(lastWasAchieved ? name : "", lastWasAchieved ? imageUrl : "", false));
+						achievments.add(new Achievment(lastWasAchieved ? name : "", lastWasAchieved ? imageUrl : NOT_ACHIEVED_IMAGE_NAME, false));
 						lastWasAchieved = false;
 					}
 				}
@@ -159,16 +163,18 @@ public class UserService {
 			}
 
 			String name = Helper.getAsString(overallMap.get("name"), "");
-			String imageUrl = Helper.getAsString(overallMap.get("imageUrl"), "");
+			String imageUrl = Helper.getAsString(overallMap.get("image"), "");
 
 			if (imageUrl.length() > 0) {
 				imageUrl = imageUrlPrefix + imageUrl;
+			} else {
+				imageUrl = NOT_ACHIEVED_IMAGE_NAME; // no image yet
 			}
 
 			if (conditionsMatch) {
 				overalLevel.add(new Achievment(name, imageUrl, true));
 			} else {
-				overalLevel.add(new Achievment(lastWasAchieved ? name : "", lastWasAchieved ? imageUrl : "", false));
+				overalLevel.add(new Achievment(lastWasAchieved ? name : "", lastWasAchieved ? imageUrl : NOT_ACHIEVED_IMAGE_NAME, false));
 				lastWasAchieved = false;
 			}
 		}

@@ -2,10 +2,12 @@
 	"byCategory": {
 		"household": {
 			"40": {
-				"name": "Heimscheisser"
+				"name": "Heimscheisser",
+				"image": "Level1Heimscheißer"
 			},
 			"100": {
-				"name": "Sockenbügler"
+				"name": "Sockenbügler",
+				"image": "Level2Sockenbügler"
 			},
 			"250": {
 				"name": "Schubladenetikettierer"
@@ -22,10 +24,12 @@
 		},
 		"cooking": {
 			"40": {
-				"name": "Tellerwäscher"
+				"name": "Tellerwäscher",
+				"image": "Level1Tellerwäscher"
 			},
 			"100": {
-				"name": "Kellner"
+				"name": "Kellner",
+				"image": "Level2Kellner"
 			},
 			"250": {
 				"name": "Küchenfee"
@@ -54,10 +58,12 @@
 		},
 		"creative": {
 			"40": {
-				"name": "Tuschkastenvergesser"
+				"name": "Tuschkastenvergesser",
+				"image": "Level1Tuschkastenvergesser"
 			},
 			"100": {
-				"name": "Fingerfarbenmaler"
+				"name": "Fingerfarbenmaler",
+				"image": "Level2Fingerfarbenmaler"
 			},
 			"250": {
 				"name": "Deckweissbenutzer"
@@ -74,10 +80,12 @@
 		},
 		"education": {
 			"40": {
-				"name": "Ich-mag-Toastbrot!"
+				"name": "Donald T.",
+				"image": "Level1DonaldTrump"
 			},
 			"100": {
-				"name": "Klugscheisser"
+				"name": "Klugscheisser",
+				"image": "Level2Klugscheißer"
 			},
 			"250": {
 				"name": "Besserwisser"
@@ -106,10 +114,12 @@
 		},
 		"fun": {
 			"40": {
-				"name": "Fritzchen-Witz-Erzähler"
+				"name": "Fritzchen-Witz-Erzähler",
+				"image": "Level1FritzchenWitzErzähler"
 			},
 			"100": {
-				"name": "Gaggiger Poetryslammer"
+				"name": "Gaggiger Poetryslammer",
+				"image": "Level2GaggigerPoetryslammer"
 			},
 			"250": {
 				"name": "Sit-Down-Comedian"
@@ -123,10 +133,12 @@
 		},
 		"eco": {
 			"40": {
-				"name": "Plastiktüten-Vermeider"
+				"name": "Plastiktüten-Vermeider",
+				"image": "Level1Plastiktütenvermeider"
 			},
 			"100": {
-				"name": "Geschenkpapierwiederbenutzer"
+				"name": "Geschenkpapierwiederbenutzer",
+				"image": "Level2Geschenkpapierwiederbenutzer"
 			},
 			"250": {
 				"name": "Bambuszahnbürste"
@@ -152,10 +164,12 @@
 		},
 		"physical": {
 			"40": {
-				"name": "Couch-Potato"
+				"name": "Couch-Potato",
+				"image": "Level1Couchpotato"
 			},
 			"100": {
-				"name": "Turnbeutelvergesser"
+				"name": "Turnbeutelvergesser",
+				"image": "Level2Turnbeutelvergesser"
 			},
 			"250": {
 				"name": "Tank-Top-Poser"
@@ -172,10 +186,12 @@
 		},
 		"social": {
 			"40": {
-				"name": "Erstkontakt"
+				"name": "Erstkontakt",
+				"image": "Level1Erstkontakt"
 			},
 			"100": {
-				"name": "Scheues Reh"
+				"name": "Scheues Reh",
+				"image": "Level2ETsLeuchtfinger"
 			},
 			"250": {
 				"name": "E.T.s Leuchtfinger"
@@ -192,10 +208,12 @@
 		},
 		"noComfortZone": {
 			"40": {
-				"name": "Schnabeltassennutzer"
+				"name": "Schnabeltassennutzer",
+				"image": "Level1Schnabeltassennutzer"
 			},
 			"100": {
-				"name": "Göffelbesitzer"
+				"name": "Göffelbesitzer",
+				"image": "Level2Göffelbesitzer"
 			},
 			"250": {
 				"name": "Klettverschlussprofi"
@@ -209,10 +227,12 @@
 		},
 		"selfcare": {
 			"40": {
-				"name": "Einstiegsyogi"
+				"name": "Einstiegsyogi",
+				"image": "Level1Einstiegsyogi"
 			},
 			"100": {
-				"name": "Klangschalenbenutzer"
+				"name": "Klangschalenbenutzer",
+				"image": "Level2Klangschalenbenutzer"
 			},
 			"250": {
 				"name": "Karmasammler"
