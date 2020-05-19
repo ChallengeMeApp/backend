@@ -1,10 +1,13 @@
 package de.challengeme.backend;
 
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Set;
 
@@ -54,9 +57,46 @@ public class GoogleDocImporter {
 
 			Path excelFilePath = Paths.get(excelFile);
 			List<UserPrototype> teamMembers = Lists.newArrayList();
+
+			Path imageDirectory = Paths.get(env.getProperty("questophant.image.directory"));
+			Files.createDirectories(imageDirectory);
+
+			// copy gamification images
+			Path gamificationImageFolder = excelFilePath.getParent().resolve("Gamification Errungenschaften");
+			if (Files.isDirectory(gamificationImageFolder)) {
+				Files.walkFileTree(gamificationImageFolder, new FileVisitor<Path>() {
+
+					@Override
+					public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+						return FileVisitResult.CONTINUE;
+					}
+
+					@Override
+					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+						String fileName = file.getFileName().toString();
+						int index = fileName.lastIndexOf('.');
+						if (index != -1) {
+							fileName = fileName.substring(0, index);
+						}
+						Files.copy(file, imageDirectory.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+						return FileVisitResult.CONTINUE;
+					}
+
+					@Override
+					public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+						throw exc;
+					}
+
+					@Override
+					public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+						return FileVisitResult.CONTINUE;
+					}
+				});
+			}
+
 			Path teamMemberPicFolder = excelFilePath.getParent().resolve("Team");
 			if (Files.isDirectory(teamMemberPicFolder)) {
-				Path imageDirectory = Paths.get(env.getProperty("questophant.image.directory"));
+				// copy team images
 				Files.list(teamMemberPicFolder).forEach(p -> {
 					String fileName = p.getFileName().toString();
 					int index = fileName.lastIndexOf('.');
