@@ -34,4 +34,9 @@ public class CategoryPoints {
 		return category;
 	}
 
+	@Override
+	public String toString() {
+		return "CategoryPoints [category=" + category + ", points=" + points + "]";
+	}
+
 }

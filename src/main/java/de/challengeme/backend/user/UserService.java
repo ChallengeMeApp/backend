@@ -28,7 +28,7 @@ import com.google.common.collect.Maps;
 
 import de.challengeme.backend.Helper;
 import de.challengeme.backend.challenge.Category;
-import de.challengeme.backend.user.Achievments.Achievment;
+import de.challengeme.backend.user.Achievements.Achievement;
 
 @Service
 public class UserService {
@@ -47,13 +47,13 @@ public class UserService {
 		// @formatter:off
 		Query query = em.createNativeQuery( " SELECT 0 id, IFNULL(SUM(u.points),0) points FROM" + 
 											" (" + 
-											"	SELECT SUM(points_win) points FROM challenges WHERE id in (" + 
-											"		SELECT challenge_id FROM challenge_status WHERE user_id = :userId AND state = 1" + 
-											"	)" + 
+											"	SELECT SUM(c.points_win) points FROM challenges AS c" + 
+											"	RIGHT JOIN challenge_status AS cs ON c.id = cs.challenge_id" + 
+											"	WHERE cs.user_id = :userId AND cs.state = 1" + 
 											"	UNION ALL" + 
-											"	SELECT SUM(points_loose) points FROM challenges WHERE id in (" + 
-											"		SELECT challenge_id FROM challenge_status WHERE user_id = :userId AND state = 2" + 
-											"	)" + 
+											"	SELECT SUM(c.points_loose) points FROM challenges AS c" + 
+											"	RIGHT JOIN challenge_status AS cs ON c.id = cs.challenge_id" + 
+											"	WHERE cs.user_id = :userId AND cs.state = 2" + 
 											" ) AS u;", Points.class);
 		// @formatter:on
 
@@ -70,15 +70,17 @@ public class UserService {
 	public List<CategoryPoints> getUserPointsPerCategory(UserPrototype user) {
 
 		// @formatter:off
-		Query query = em.createNativeQuery( " SELECT 0 id, IFNULL(SUM(u.points),0) points, category FROM" + 
+		Query query = em.createNativeQuery( " SELECT 0 id, IFNULL(SUM(points),0) points, category FROM" + 
 											" (" + 
-											"	SELECT SUM(points_win) points, category FROM challenges WHERE id in (" + 
-											"		SELECT challenge_id FROM challenge_status WHERE user_id = :userId AND state = 1" + 
-											"	) GROUP BY category" + 
+											"	SELECT SUM(c.points_win) points, c.category FROM challenges AS c" + 
+											"	RIGHT JOIN challenge_status AS cs ON c.id = cs.challenge_id" + 
+											"	WHERE cs.user_id = :userId AND cs.state = 1" + 
+											"	GROUP BY c.category" + 
 											"	UNION ALL" + 
-											"	SELECT SUM(points_loose) points, category FROM challenges WHERE id in (" + 
-											"		SELECT challenge_id FROM challenge_status WHERE user_id = :userId AND state = 2" + 
-											"	) GROUP BY category" + 
+											"	SELECT SUM(c.points_loose) points, c.category FROM challenges AS c" + 
+											"	RIGHT JOIN challenge_status AS cs ON c.id = cs.challenge_id" + 
+											"	WHERE cs.user_id = :userId AND cs.state = 2" +
+											"	GROUP BY c.category" +
 											" ) AS u"+
 											" GROUP BY category", CategoryPoints.class);
 		// @formatter:on
@@ -89,18 +91,19 @@ public class UserService {
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public Achievments getUserAchievments(UserPrototype user, String imageUrlPrefix) throws IOException {
+	public Achievements getUserAchievements(UserPrototype user, String imageUrlPrefix) throws IOException {
 
 		String NOT_ACHIEVED_IMAGE_NAME = imageUrlPrefix + "Fragezeichen";
 
-		Map<String, Object> predefinedAchievments;
+		Map<String, Object> predefinedAchievements;
 		ObjectMapper mapper = new ObjectMapper();
-		try (InputStream is = getClass().getResourceAsStream("/achievments.json")) {
-			predefinedAchievments = mapper.readValue(is, Map.class);
+		try (InputStream is = getClass().getResourceAsStream("/achievements.json")) {
+			predefinedAchievements = mapper.readValue(is, Map.class);
 		}
 
-		Map<String, Map> pAByCategory = Helper.getAsMap(predefinedAchievments.get("byCategory"));
-		Map<Category, List<Achievment>> achievmentsByCategory = Maps.newHashMap();
+		Map<String, Map> pAByCategory = Helper.getAsMap(predefinedAchievements.get("byCategory"));
+
+		Map<Category, List<Achievement>> achievementsByCategory = Maps.newHashMap();
 		for (CategoryPoints cp : getUserPointsPerCategory(user)) {
 			Map<String, Object> pAList = pAByCategory.get(cp.getCategory().toString());
 			pAList.put("points", cp.getPoints());
@@ -110,7 +113,7 @@ public class UserService {
 		for (Entry<String, Map> entry : pAByCategory.entrySet()) {
 
 			Category category = Category.valueOf(entry.getKey());
-			List<Achievment> achievments = Lists.newArrayList();
+			List<Achievement> achievements = Lists.newArrayList();
 
 			Map<String, Object> pAList = entry.getValue();
 			Long points = (Long) pAList.get("points");
@@ -133,21 +136,21 @@ public class UserService {
 					}
 
 					if (Long.parseLong(entryPA.getKey()) <= points) {
-						achievments.add(new Achievment(name, imageUrl, true));
+						achievements.add(new Achievement(name, imageUrl, true));
 						level++;
 					} else {
-						achievments.add(new Achievment(lastWasAchieved ? name : "", lastWasAchieved ? imageUrl : NOT_ACHIEVED_IMAGE_NAME, false));
+						achievements.add(new Achievement(lastWasAchieved ? name : "", lastWasAchieved ? imageUrl : NOT_ACHIEVED_IMAGE_NAME, false));
 						lastWasAchieved = false;
 					}
 				}
 			}
 
 			totalLevels.put(level, totalLevels.getOrDefault(level, 0) + 1);
-			achievmentsByCategory.put(category, achievments);
+			achievementsByCategory.put(category, achievements);
 		}
 
-		List<Achievment> overalLevel = Lists.newArrayList();
-		List<Map> pAOverall = Helper.getAsList(predefinedAchievments.get("overall"));
+		List<Achievement> overalLevel = Lists.newArrayList();
+		List<Map> pAOverall = Helper.getAsList(predefinedAchievements.get("overall"));
 		boolean lastWasAchieved = true;
 		for (Map overallMap : pAOverall) {
 			List<Map> minLevels = Helper.getAsList(overallMap.get("minLevels"));
@@ -172,17 +175,17 @@ public class UserService {
 			}
 
 			if (conditionsMatch) {
-				overalLevel.add(new Achievment(name, imageUrl, true));
+				overalLevel.add(new Achievement(name, imageUrl, true));
 			} else {
-				overalLevel.add(new Achievment(lastWasAchieved ? name : "", lastWasAchieved ? imageUrl : NOT_ACHIEVED_IMAGE_NAME, false));
+				overalLevel.add(new Achievement(lastWasAchieved ? name : "", lastWasAchieved ? imageUrl : NOT_ACHIEVED_IMAGE_NAME, false));
 				lastWasAchieved = false;
 			}
 		}
 
-		Achievments achievments = new Achievments();
-		achievments.setAchievmentsByCategory(achievmentsByCategory);
-		achievments.setOveralLevel(overalLevel);
-		return achievments;
+		Achievements achievements = new Achievements();
+		achievements.setAchievementsByCategory(achievementsByCategory);
+		achievements.setOveralLevel(overalLevel);
+		return achievements;
 	}
 
 	public int getCountOfAdminUsers() {

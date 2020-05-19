@@ -43,7 +43,7 @@ import de.challengeme.backend.challenge.ChallengeStatus.State;
 import de.challengeme.backend.challenge.ChallengeWithStatus;
 import de.challengeme.backend.challenge.DoneChallenge;
 import de.challengeme.backend.challenge.OnGoingChallenge;
-import de.challengeme.backend.user.Achievments;
+import de.challengeme.backend.user.Achievements;
 import de.challengeme.backend.user.MyUser;
 import de.challengeme.backend.user.Points;
 import de.challengeme.backend.user.PublicUser;
@@ -215,35 +215,35 @@ public class BackendControllerV1 {
 		return result;
 	}
 
-	@GetMapping("/myUser/{privateUserId}/achievments")
-	@ApiOperation(value = "Gets the achievments of a user.", response = Achievments.class)
+	@GetMapping("/myUser/{privateUserId}/achievements")
+	@ApiOperation(value = "Gets the achievements of a user.", response = Achievements.class)
 	@ApiResponses(value = {@ApiResponse(code = 404, message = "MyUser not found.")})
-	public Object getPrivateUserAchievments(@PathVariable String privateUserId) {
+	public Object getPrivateUserAchievements(@PathVariable String privateUserId) {
 		MyUser user = userService.getUserByPrivateUserId(privateUserId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MyUser not found.");
 		}
 		try {
-			return userService.getUserAchievments(user, imageUrlPrefix);
+			return userService.getUserAchievements(user, imageUrlPrefix);
 		} catch (IOException e) {
-			logger.error("Error retrieving achievments.", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving achievments.");
+			logger.error("Error retrieving achievements.", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving achievements.");
 		}
 	}
 
-	@GetMapping("/publicUser/{publicUserId}/achievments")
-	@ApiOperation(value = "Gets the achievments of a user.", response = Achievments.class)
+	@GetMapping("/publicUser/{publicUserId}/achievements")
+	@ApiOperation(value = "Gets the achievements of a user.", response = Achievements.class)
 	@ApiResponses(value = {@ApiResponse(code = 404, message = "PublicUser not found.")})
-	public Object getPublicUserAchievments(@PathVariable String publicUserId) {
+	public Object getPublicUserAchievements(@PathVariable String publicUserId) {
 		PublicUser user = userService.getPublicUserByUserId(publicUserId);
 		if (user == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("PublicUser not found.");
 		}
 		try {
-			return userService.getUserAchievments(user, imageUrlPrefix);
+			return userService.getUserAchievements(user, imageUrlPrefix);
 		} catch (IOException e) {
-			logger.error("Error retrieving achievments.", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving achievments.");
+			logger.error("Error retrieving achievements.", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving achievements.");
 		}
 	}
 
@@ -349,6 +349,16 @@ public class BackendControllerV1 {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Challenge not found.");
 		}
 
+		//		Achievements preAchievements;
+		//		try {
+		//			preAchievements = userService.getUserAchievements(user, imageUrlPrefix);
+		//		} catch (IOException e) {
+		//			logger.error("Error retrieving achievements.", e);
+		//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving achievements.");
+		//		}
+
+		//		System.out.println("precooking: " + preAchievements.getAchievementsByCategory().get(Category.cooking).get(0));
+
 		ChallengeStatus challengeResult = new ChallengeStatus();
 		challengeResult.setUserId(user.getId());
 		challengeResult.setChallengeId(challenge.getId());
@@ -358,7 +368,39 @@ public class BackendControllerV1 {
 		challengeService.save(challengeResult);
 
 		return DefaultResponse.SUCCESS;
+
+		//		Achievements postAchievements;
+		//		try {
+		//			postAchievements = userService.getUserAchievements(user, imageUrlPrefix);
+		//		} catch (IOException e) {
+		//			logger.error("Error retrieving achievements.", e);
+		//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving achievements.");
+		//		}
+		//
+		//		System.out.println("postcooking: " + postAchievements.getAchievementsByCategory().get(Category.cooking).get(0));
+		//
+		//		// remove all achievements that were present before saving that challenge result 
+		//		removeAllButNewAchievements(postAchievements.getOveralLevel(), preAchievements.getOveralLevel());
+		//		Iterator<Entry<Category, List<Achievement>>> categoryAndAchievementIterator = postAchievements.getAchievementsByCategory().entrySet().iterator();
+		//		while (categoryAndAchievementIterator.hasNext()) {
+		//			Entry<Category, List<Achievement>> entry = categoryAndAchievementIterator.next();
+		//			List<Achievement> preList = preAchievements.getAchievementsByCategory().get(entry.getKey());
+		//			removeAllButNewAchievements(entry.getValue(), preList);
+		//			if (entry.getValue().size() == 0) {
+		//				categoryAndAchievementIterator.remove();
+		//			}
+		//		}
+		//
+		//		return postAchievements;
 	}
+
+	//	private void removeAllButNewAchievements(List<Achievement> post, List<Achievement> pre) {
+	//		for (int index = post.size() - 1; index >= 0; index--) {
+	//			if (pre.get(index).isAchieved() || !post.get(index).isAchieved()) {
+	//				post.remove(index);
+	//			}
+	//		}
+	//	}
 
 	@GetMapping("/myUser/{privateUserId}/ongoing_challenges")
 	@ApiOperation(value = "Gets all challenges, currently being done by the user.", response = Challenge.class, responseContainer = "List")

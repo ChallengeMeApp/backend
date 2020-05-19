@@ -204,10 +204,6 @@ public class ChallengeService {
 		return null;
 	}
 
-	//	public void save(Challenge challenge) {
-	//		challengeRepository.saveAndFlush(challenge);
-	//	}
-
 	public void save(ChallengeStatus challengeResult) {
 		challengeResultRepository.saveAndFlush(challengeResult);
 	}
