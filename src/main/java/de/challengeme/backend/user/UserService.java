@@ -139,7 +139,7 @@ public class UserService {
 						achievements.add(new Achievement(name, imageUrl, true));
 						level++;
 					} else {
-						achievements.add(new Achievement(lastWasAchieved ? name : "", lastWasAchieved ? imageUrl : NOT_ACHIEVED_IMAGE_NAME, false));
+						achievements.add(new Achievement("", lastWasAchieved ? imageUrl : NOT_ACHIEVED_IMAGE_NAME, false));
 						lastWasAchieved = false;
 					}
 				}
@@ -177,7 +177,7 @@ public class UserService {
 			if (conditionsMatch) {
 				overalLevel.add(new Achievement(name, imageUrl, true));
 			} else {
-				overalLevel.add(new Achievement(lastWasAchieved ? name : "", lastWasAchieved ? imageUrl : NOT_ACHIEVED_IMAGE_NAME, false));
+				overalLevel.add(new Achievement("", lastWasAchieved ? imageUrl : NOT_ACHIEVED_IMAGE_NAME, false));
 				lastWasAchieved = false;
 			}
 		}
