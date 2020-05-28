@@ -198,6 +198,12 @@ public class GoogleDocImporter {
 									pointsLoose += (int) Double.parseDouble(points);
 								}
 
+								// no entries in excel
+								if (pointsWin == 0 && pointsLoose == 0) {
+									pointsWin = 15;
+									pointsLoose = 10;
+								}
+
 								challenge.setPointsWin(pointsWin);
 								challenge.setPointsLoose(pointsLoose);
 
