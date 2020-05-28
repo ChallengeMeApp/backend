@@ -1,6 +1,6 @@
 # Welcome
 
-This is the backend for the ChallengeMe app.
+This is the backend for the Questophant app.
 
 # Getting Started
 
@@ -13,7 +13,7 @@ To build the backend components you need the following software:
 
 ## How do I clone the Git repositories?
 	 
-	$ git clone https://github.com/ChallengeMeApp/backend.git
+	$ git clone https://github.com/Questophant/backend.git
 	 
 ## How to build the backend?
 
@@ -32,12 +32,12 @@ Then open the browser for URL [http://localhost:8080].
 
 ## How to setup a local database?
 
-To run the local development server you need a [MySQL database](https://www.mysql.com/) installed. Either you install MySQL on your machine or you can use local build infrastructure with docker/docker-compose using the office MySQL docker image.
+To run the local development server you need a [MySQL database](https://www.mysql.com/) installed. Either you install MySQL on your machine or you can use local build infrastructure with docker/docker-compose using the official MySQL docker image.
 Install [Docker](https://docs.docker.com/get-docker/) for your operating system and then run:
 
-    $ docker run --name mysqldb -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_USER=test -e MYSQL_PASSWORD=password -e MYSQL_DATABASE=ChallengeMe -p 3306:3306 -d mysql
+    $ docker run --name mysqldb -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_USER=test -e MYSQL_PASSWORD=password -e MYSQL_DATABASE=questophant -p 3306:3306 -d mysql
 
-This command will start a MySQL server with a default database named `ChallengeMe` and a user `test` (password: `password`). The  user `root` has the password `secret`.
+This command will start a MySQL server with a default database named `questophant` and a user `test` (password: `password`). The  user `root` has the password `secret`.
 
 ### Import Challenges
 
@@ -48,7 +48,7 @@ To import the challenges from the file run the backend with:
     $ mvn spring-boot:run "-Dspring-boot.run.arguments=import='documents/Challenges - Zusammenfassung gemeinsames Projekt.xlsx'"
 
 ### MariaDB
-The backend is built to be used with MySQL. If you want to use MariaDB, run the script /scripts/mariadb.sql after you changed to your database "USE ChallengeMe;".
+The backend is built to be used with MySQL. If you want to use MariaDB, run the script /scripts/mariadb.sql after you changed to your database "USE questophant;".
 
 ### Reference Documentation
 For further reference, please consider the following sections:
