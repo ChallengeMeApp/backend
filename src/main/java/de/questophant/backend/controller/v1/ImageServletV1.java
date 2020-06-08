@@ -427,12 +427,6 @@ public class ImageServletV1 extends HttpServlet {
 				int width = Math.min(requestedSize.width, originalSize.width);
 				int height = Math.min(requestedSize.height, originalSize.height);
 
-				// image stays the same size or would only be enlarged, just copy the file and return
-				if (width >= originalSize.width && height >= originalSize.height) {
-					Files.copy(baseFile, file);
-					return;
-				}
-
 				sizeString = Math.min(width, 6000) + "x" + Math.min(height, 6000); // hard limits
 				commandLine.add("-resize");
 				commandLine.add(sizeString + "^");
