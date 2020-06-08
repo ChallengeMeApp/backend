@@ -40,7 +40,7 @@ public class BackendApplication {
 	public static void main(String[] args) {
 		arguments = Arrays.asList(args);
 		if (arguments != null) {
-			logger.info("Started with arguments: " + Joiner.on(',').join(arguments));
+			logger.info("Started with arguments: {}", Joiner.on(',').join(arguments));
 		}
 		SpringApplication.run(BackendApplication.class, args);
 	}
@@ -75,7 +75,7 @@ public class BackendApplication {
 				user.setLastName("root");
 				user.setUserName("CM Team");
 				userService.save(user);
-				logger.info("Created root user: " + user.getPrivateUserId());
+				logger.info("Created root user: {}", user.getPrivateUserId());
 			}
 
 			// create one guest user, usable for testing

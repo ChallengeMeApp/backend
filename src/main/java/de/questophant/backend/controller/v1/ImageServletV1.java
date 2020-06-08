@@ -20,6 +20,7 @@
 
 package de.questophant.backend.controller.v1;
 
+import java.awt.Dimension;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -75,32 +77,6 @@ public class ImageServletV1 extends HttpServlet {
 	public void initialize() {
 		basePath = Paths.get(env.getProperty("questophant.image.directory"));
 	}
-
-	/**
-	 * Initialize the servlet.
-	 * 
-	 * @see HttpServlet#init().
-	 */
-	//	@Override
-	//	public void init() throws ServletException {
-	//
-	//		// Get base path (path to get all resources from) as init parameter.
-	//		this.basePath = getInitParameter("basePath").replace("${tmp}", System.getProperty("java.io.tmpdir"));
-	//
-	//		// Validate base path.
-	//		if (this.basePath == null) {
-	//			throw new ServletException("FileServlet init param 'basePath' is required.");
-	//		} else {
-	//			File path = new File(this.basePath);
-	//			if (!path.exists()) {
-	//				throw new ServletException("FileServlet init param 'basePath' value '" + this.basePath + "' does actually not exist in file system.");
-	//			} else if (!path.isDirectory()) {
-	//				throw new ServletException("FileServlet init param 'basePath' value '" + this.basePath + "' is actually not a directory in file system.");
-	//			} else if (!path.canRead()) {
-	//				throw new ServletException("FileServlet init param 'basePath' value '" + this.basePath + "' is actually not readable in file system.");
-	//			}
-	//		}
-	//	}
 
 	/**
 	 * Process HEAD request. This returns the same headers as GET request, but without content.
@@ -390,6 +366,13 @@ public class ImageServletV1 extends HttpServlet {
 
 	// Helpers (can be refactored to public utility class) ----------------------------------------
 
+	private Dimension toDimension(String sizeString) {
+		int index = sizeString.indexOf('x');
+		int width = Integer.parseInt(sizeString.substring(0, index));
+		int height = Integer.parseInt(sizeString.substring(index + 1));
+		return new Dimension(width, height);
+	}
+
 	private void createImage(Path file) throws IOException {
 
 		String fileName = file.getFileName().toString();
@@ -412,8 +395,47 @@ public class ImageServletV1 extends HttpServlet {
 			commandLine.add("-auto-orient");
 
 			if (secondToLastIndex != -1) {
+				String sizeString = fileName.substring(secondToLastIndex + 1, lastIndex);
+				Dimension requestedSize = toDimension(sizeString);
+
+				List<String> identifyCommandLine = Lists.newArrayList();
+				identifyCommandLine.add("magick");
+				identifyCommandLine.add("convert");
+				identifyCommandLine.add("-auto-orient");
+				identifyCommandLine.add("-ping");
+				identifyCommandLine.add(baseFile.toAbsolutePath().toString());
+				identifyCommandLine.add("-format");
+				identifyCommandLine.add("%wx%h");
+				identifyCommandLine.add("info:");
+
+				Process p = new ProcessBuilder(identifyCommandLine).start();
+				try {
+					if (!p.waitFor(10, TimeUnit.SECONDS)) {
+						throw new TimeoutException();
+					}
+				} catch (Exception e) {
+					p.destroy();
+				}
+
+				String originalSizeString = new String(p.getInputStream().readAllBytes());
+				Dimension originalSize = toDimension(originalSizeString);
+
+				p.getInputStream().close();
+				p.getOutputStream().close();
+				p.getErrorStream().close();
+
+				int width = Math.min(requestedSize.width, originalSize.width);
+				int height = Math.min(requestedSize.height, originalSize.height);
+
+				// image stays the same size or would only be enlarged, just copy the file and return
+				if (width >= originalSize.width && height >= originalSize.height) {
+					Files.copy(baseFile, file);
+					return;
+				}
+
+				sizeString = Math.min(width, 6000) + "x" + Math.min(height, 6000); // hard limits
 				commandLine.add("-resize");
-				commandLine.add(fileName.substring(secondToLastIndex + 1, lastIndex) + "^");
+				commandLine.add(sizeString + "^");
 			}
 
 			if ("webp".equals(format)) {
@@ -432,7 +454,9 @@ public class ImageServletV1 extends HttpServlet {
 
 			Process p = new ProcessBuilder(commandLine).start();
 			try {
-				p.waitFor(10, TimeUnit.SECONDS);
+				if (!p.waitFor(10, TimeUnit.SECONDS)) {
+					throw new TimeoutException();
+				}
 			} catch (Exception e) {
 				p.destroy();
 			}
@@ -440,22 +464,6 @@ public class ImageServletV1 extends HttpServlet {
 			p.getInputStream().close();
 			p.getOutputStream().close();
 			p.getErrorStream().close();
-
-			//			BufferedImage image;
-			//			try (InputStream is = Files.newInputStream(baseFile)) {
-			//				image = ImageIO.read(is);
-			//			}
-			//			if (sizeString != "") {
-			//
-			//			}
-			//			Path tmpFile = Files.createTempFile("questophant", "tmpimage");
-			//			try (OutputStream os = Files.newOutputStream(tmpFile)) {
-			//				ImageIO.write(image, format, os);
-			//			}
-			//			Files.move(tmpFile, file, StandardCopyOption.REPLACE_EXISTING);
-			//
-			//			image.flush();
-
 		}
 
 	}
