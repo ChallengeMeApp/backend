@@ -70,7 +70,7 @@ public class UserService {
 	public List<CategoryPoints> getUserPointsPerCategory(UserPrototype user) {
 
 		// @formatter:off
-		Query query = em.createNativeQuery( " SELECT 0 id, IFNULL(SUM(points),0) points, category FROM" + 
+		Query query = em.createNativeQuery( "SELECT (@row_number::=@row_number + 1) AS id, IFNULL(SUM(points),0) points, category FROM" + 
 											" (" + 
 											"	SELECT SUM(c.points_win) points, c.category FROM challenges AS c" + 
 											"	RIGHT JOIN challenge_status AS cs ON c.id = cs.challenge_id" + 
@@ -81,7 +81,8 @@ public class UserService {
 											"	RIGHT JOIN challenge_status AS cs ON c.id = cs.challenge_id" + 
 											"	WHERE cs.user_id = :userId AND cs.state = 2" +
 											"	GROUP BY c.category" +
-											" ) AS u"+
+											" ) AS u,"+
+											" (SELECT @row_number::=0) AS t"+
 											" GROUP BY category", CategoryPoints.class);
 		// @formatter:on
 
